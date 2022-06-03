@@ -44,8 +44,13 @@ UNION
 SELECT DISTINCT NEUMATICO4_NRO_SERIE_VIEJO,NEUMATICO4_POSICION_VIEJO,NEUMATICO4_TIPO_VIEJO
 FROM GD1C2022.gd_esquema.Maestra
 order by 1
+--copio 381 filas y son 58x8 en la maestra
 
---hasta aca copia bien
+--MOTOR
+INSERT INTO test.LUSAX2.Motor(MOTOR_NRO_SERIE,MOTOR_MODELO)
+select distinct TELE_MOTOR_NRO_SERIE,TELE_MOTOR_MODELO
+from GD1C2022.gd_esquema.Maestra
+--hasta aca copia bien 
 
 
 /*--CARRERA
@@ -68,6 +73,7 @@ FROM gd_esquema.Maestra AS M
 JOIN LUSAX2.Piloto AS P ON P.PILOTO_ID = 
 
 */
-select * from LUSAX2.Neumatico
-select NEUMATICO1_NRO_SERIE_NUEVO,NEUMATICO1_POSICION_NUEVO,NEUMATICO1_TIPO_NUEVO from GD1C2022.gd_esquema.Maestra
+select * from LUSAX2.Motor
+select TELE_MOTOR_NRO_SERIE from GD1C2022.gd_esquema.Maestra
+group by TELE_MOTOR_NRO_SERIE
 
