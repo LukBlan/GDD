@@ -11,7 +11,7 @@ CREATE SCHEMA [LUSAX2]
 GO
 
 CREATE TABLE [LUSAX2].[Telemetria] (
-  TELEMETRIA_ID int NOT NULL,
+  TELEMETRIA_ID int NOT NULL identity(1,1),
   TELE_AUTO_ID int,
   Carrera_id int,
   SECTOR_CODIGO int,
@@ -23,7 +23,7 @@ CREATE TABLE [LUSAX2].[Telemetria] (
 );
 
 CREATE TABLE [LUSAX2].[Telemetria_Auto] (
-  TELE_AUTO_ID int NOT NULL,
+  TELE_AUTO_ID int NOT NULL identity(1,1),
   AUTO_NUMERO int,
   TELE_AUTO_DISTANCIA_CARRERA decimal(18,6),
   TELE_AUTO_TIEMPO_VUELTA decimal(18,10),
@@ -74,7 +74,7 @@ CREATE TABLE [LUSAX2].[Sector] (
 );
 
 CREATE TABLE [LUSAX2].[Telemetria_CajaDeCambio] (
-  TELE_CAJA_CAMBIO_ID int NOT NULL,
+  TELE_CAJA_CAMBIO_ID int NOT NULL identity(1,1),
   CAJA_NRO_SERIE nvarchar(255),
   TELE_CAJA_TEMP_ACEITE decimal (18,2),
   TELE_CAJA_RPM decimal (18,2),
@@ -90,7 +90,7 @@ CREATE TABLE [LUSAX2].[CajaDeCambio] (
 );
 
 CREATE TABLE [LUSAX2].[Telemetria_Freno] (
-  TELE_FRENO_ID int NOT NULL,
+  TELE_FRENO_ID int NOT NULL identity(1,1),
   FRENO_NRO_SERIE nvarchar(255),
   TELE_TEMPERATURA decimal (18,2),
   TELE_TAMANIO_DISCO decimal (18,2),
@@ -105,7 +105,7 @@ CREATE TABLE [LUSAX2].[Freno] (
 );
 
 CREATE TABLE [LUSAX2].[Telemetria_Neumatico] (
-  TELE_NEUMATICO_ID int NOT NULL,
+  TELE_NEUMATICO_ID int NOT NULL identity(1,1),
   NEUMATICO_NRO_SERIE nvarchar(255),
   TELE_NEUMATICO_PRESION decimal(18,6),
   TELE_NEUMATICO_PROFUNDIDAD decimal(18,6),
@@ -146,8 +146,8 @@ CREATE TABLE [LUSAX2].[Motor] (
 );
 
 CREATE TABLE [LUSAX2].[Incidente] (
-  INCIDENTE_ID  int  NOT NULL,
-  Carrera_id int,
+  INCIDENTE_ID  int  NOT NULL identity(1,1),
+  CARRERA_id int,
   INCIDENTE_TIPO nvarchar(255),
   INCIDENTE_NUMERO_VUELTA decimal(18,0),
   INCIDENTE_BANDERA nvarchar(255),
