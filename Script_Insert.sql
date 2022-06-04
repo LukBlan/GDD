@@ -20,6 +20,14 @@ FROM GD1C2022.gd_esquema.Maestra as em join test.LUSAX2.Circuito as s ON em.CODI
 and em.[CIRCUITO_CODIGO] = s.[CIRCUITO_CODIGO]
 ORDER BY CODIGO_CARRERA
 
+-- INCIDENTE
+INSERT INTO test.LUSAX2.INCIDENTE (carrera_id, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO)
+select s.carrera_id, em.INCIDENTE_TIPO, em.INCIDENTE_BANDERA, em.INCIDENTE_TIEMPO
+FROM GD1C2022.gd_esquema.Maestra AS em JOIN test.lusax2.Carrera as s on s.carrera_codigo = em.CODIGO_CARRERA 
+and s.circuito_id = (select Circuito_id from test.lusax2.Circuito where [SECTOR_CODIGO] = [CODIGO_SECTOR])
+where INCIDENTE_TIPO is not null
+
+
 -- ESCUDERIA
 INSERT INTO test.LUSAX2.Escuderia (ESCUDERIA_NOMBRE, ESCUDERIA_NACIONALIDAD)
 SELECT DISTINCT ESCUDERIA_NOMBRE, ESCUDERIA_NACIONALIDAD
@@ -147,10 +155,7 @@ ORDER BY 1
 --REVISAR DESPUES
 
 --INCIDENTE
-/*INSERT INTO test.LUSAX2.INCIDENTE(carrera_id,INCIDENTE_TIPO,INCIDENTE_BANDERA,INCIDENTE_TIEMPO)
-select distinct c.carrera_id,em.INCIDENTE_TIPO
-FROM GD1C2022.gd_esquema.Maestra AS em join
-test.lusax2.carrera on c.carrera_codigo=em.CODIGO_CARRERA
+/*
 */
 
 -- AUTO 
