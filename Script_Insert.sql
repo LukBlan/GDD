@@ -177,4 +177,18 @@ FROM GD1C2022.gd_esquema.Maestra AS M
 JOIN LUSAX2.Automovil A ON A.AUTO_NUMERO=M.AUTO_NUMERO AND A.AUTO_MODELO=M.AUTO_MODELO
 WHERE TELE_AUTO_COMBUSTIBLE IS NOT NULL
 
+--Parada 
+INSERT INTO test.LUSAX2.Parada (carrera_id, auto_id, [PARADA_BOX_VUELTA], [PARADA_BOX_TIEMPO])
+select distinct c.carrera_id, a.auto_id, [PARADA_BOX_VUELTA], [PARADA_BOX_TIEMPO]
+FROM GD1C2022.gd_esquema.Maestra AS em
+join LUSAX2.automovil as a on a.auto_id = (select distinct auto_id
+                                           from [LUSAX2].[Automovil]
+										   where LUSAX2.automovil.auto_numero = em.[AUTO_NUMERO]
+										   and LUSAX2.automovil.AUTO_MODELO = em.auto_Modelo)
+JOIN LUSAX2.Carrera As c ON  c.carrera_id = (select distinct carrera_id 
+                                             from LUSAX2.Carrera
+											 where carrera_codigo = CODIGO_CARRERA
+											 and circuito_id = (select Circuito_id from test.lusax2.Circuito where [SECTOR_CODIGO] = em.[CODIGO_SECTOR]))
+where PARADA_BOX_TIEMPO is not null
+
 
