@@ -222,8 +222,8 @@ where NEUMATICO4_NRO_SERIE_NUEVO is not null
 
 use test
 go
-insert into test.lusax2.Telemetria (TELE_AUTO_ID, carrera_id, sector_codigo,TELE_CAJA_CAMBIO_ID)
-select DISTINCT NULL, c.carrera_id, codigo_sector,tc.TELE_CAJA_CAMBIO_ID
+insert into test.lusax2.Telemetria (TELE_AUTO_ID, carrera_id, sector_codigo, TELE_CAJA_CAMBIO_ID, TELE_MOTOR_ID)
+select DISTINCT NULL, c.carrera_id, codigo_sector, tc.TELE_CAJA_CAMBIO_ID, tm.TELE_MOTOR_ID
 from GD1C2022.gd_esquema.Maestra as em								   
 JOIN LUSAX2.Carrera As c ON  c.carrera_id = (select distinct carrera_id 
                                              from LUSAX2.Carrera
@@ -277,7 +277,6 @@ JOIN LUSAX2.Telemetria_Freno As tf on tf.TELE_FRENO_ID = (select distinct TELE_F
 																		   and lusax2.Telemetria_Freno.TELE_TAMANIO_DISCO = em.TELE_FRENO4_TAMANIO_DISCO
 																		   and lusax2.Telemetria_Freno.TELE_FRENO_GROSOR_PASTILLA = em.TELE_FRENO4_GROSOR_PASTILLA)
 */
-
 
 select *
 from lusax2.telemetria
