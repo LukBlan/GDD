@@ -163,7 +163,7 @@ CREATE TABLE [LUSAX2].[AutoxIncidente] (
 );
 
 CREATE TABLE [LUSAX2].[Parada] (
-  PARADA_CODIGO_BOX int NOT NULL,
+  PARADA_CODIGO_BOX int NOT NULL identity(1,1),
   Carrera_id int,
   ID_CAMBIO_NEUMATICOS int,
   AUTO_ID int,
