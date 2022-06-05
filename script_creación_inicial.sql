@@ -11,7 +11,7 @@ CREATE SCHEMA [LUSAX2]
 GO
 
 CREATE TABLE [LUSAX2].[Telemetria] (
-  TELEMETRIA_ID int NOT NULL identity(1,1),
+  TELEMETRIA_ID int NOT NULL,
   TELE_AUTO_ID int,
   Carrera_id int,
   SECTOR_CODIGO int,
