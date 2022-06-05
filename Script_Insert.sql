@@ -144,7 +144,6 @@ UNION
 select distinct TELE_FRENO3_NRO_SERIE, TELE_FRENO3_GROSOR_PASTILLA, TELE_FRENO3_TAMANIO_DISCO, TELE_FRENO3_TEMPERATURA
 FROM GD1C2022.gd_esquema.Maestra AS em
 JOIN test.LUSAX2.Freno AS f ON em.TELE_FRENO4_NRO_SERIE = f.FRENO_NRO_SERIE
---hasta aca copia bien 
 
 --TELEMETRIA_NEUMATICO
 INSERT INTO test.LUSAX2.Telemetria_Neumatico(NEUMATICO_NRO_SERIE,TELE_NEUMATICO_PRESION,TELE_NEUMATICO_PROFUNDIDAD,TELE_NEUMATICO_TEMPERATURA)
@@ -164,7 +163,6 @@ select distinct TELE_NEUMATICO4_NRO_SERIE,TELE_NEUMATICO4_PRESION,TELE_NEUMATICO
 FROM GD1C2022.gd_esquema.Maestra AS em
 JOIN test.LUSAX2.Neumatico AS N ON em.TELE_NEUMATICO4_NRO_SERIE = N.NEUMATICO_NRO_SERIE
 ORDER BY 1,2
---REVISAR DESPUES
 
 --AUTOXINCIDENTE
 INSERT INTO test.LUSAX2.AutoxIncidente(AUTO_ID,INCIDENTE_NUMERO_VUELTA)
@@ -221,8 +219,7 @@ FROM GD1C2022.gd_esquema.Maestra AS em
 join LUSAX2.Parada p ON p.PARADA_BOX_TIEMPO+p.PARADA_BOX_VUELTA=em.PARADA_BOX_TIEMPO+em.PARADA_BOX_VUELTA
 where NEUMATICO4_NRO_SERIE_NUEVO is not null
 
-use test
-go
+--TELEMETRIA
 insert into test.lusax2.Telemetria (TELE_AUTO_ID, carrera_id, sector_codigo, TELE_CAJA_CAMBIO_ID, TELE_MOTOR_ID)
 select DISTINCT TELE_AUTO_CODIGO, c.carrera_id,codigo_sector, tc.TELE_CAJA_CAMBIO_ID, tm.TELE_MOTOR_ID
 from GD1C2022.gd_esquema.Maestra as em								   
@@ -244,38 +241,3 @@ JOIN LUSAX2.Telemetria_Motor As tm on tm.TELE_MOTOR_ID = (select TELE_MOTOR_ID
 																		   and LUSAX2.Telemetria_Motor.TELE_MOTOR_TEMP_AGUA = em.TELE_MOTOR_TEMP_AGUA
 																		   and LUSAX2.Telemetria_Motor.TELE_MOTOR_POTENCIA = em.TELE_MOTOR_POTENCIA)
 
-
-																		   /*
-JOIN LUSAX2.Telemetria_Freno As tf on tf.TELE_FRENO_ID = (select distinct TELE_FRENO_ID
-                                                                           from LUSAX2.Telemetria_Freno
-																		   where LUSAX2.Telemetria_Freno.FRENO_NRO_SERIE = em.TELE_FRENO1_NRO_SERIE
-																		   and lusax2.Telemetria_Freno.TELE_TEMPERATURA = em.TELE_FRENO1_TEMPERATURA
-																		   and lusax2.Telemetria_Freno.TELE_TAMANIO_DISCO = em.TELE_FRENO1_TAMANIO_DISCO
-																		   and lusax2.Telemetria_Freno.TELE_FRENO_GROSOR_PASTILLA = em.TELE_FRENO1_GROSOR_PASTILLA
-
-																		   Union
-
-																		   select distinct TELE_FRENO_ID
-                                                                           from LUSAX2.Telemetria_Freno
-																		   where LUSAX2.Telemetria_Freno.FRENO_NRO_SERIE = em.TELE_FRENO2_NRO_SERIE
-																		   and lusax2.Telemetria_Freno.TELE_TEMPERATURA = em.TELE_FRENO2_TEMPERATURA
-																		   and lusax2.Telemetria_Freno.TELE_TAMANIO_DISCO = em.TELE_FRENO2_TAMANIO_DISCO
-																		   and lusax2.Telemetria_Freno.TELE_FRENO_GROSOR_PASTILLA = em.TELE_FRENO2_GROSOR_PASTILLA
-																		   
-																		   Union
-																		   select distinct TELE_FRENO_ID
-                                                                           from LUSAX2.Telemetria_Freno
-																		   where LUSAX2.Telemetria_Freno.FRENO_NRO_SERIE = em.TELE_FRENO3_NRO_SERIE
-																		   and lusax2.Telemetria_Freno.TELE_TEMPERATURA = em.TELE_FRENO3_TEMPERATURA
-																		   and lusax2.Telemetria_Freno.TELE_TAMANIO_DISCO = em.TELE_FRENO3_TAMANIO_DISCO
-																		   and lusax2.Telemetria_Freno.TELE_FRENO_GROSOR_PASTILLA = em.TELE_FRENO3_GROSOR_PASTILLA
-
-																		   Union
-
-																		   select distinct TELE_FRENO_ID
-                                                                           from LUSAX2.Telemetria_Freno
-																		   where LUSAX2.Telemetria_Freno.FRENO_NRO_SERIE = em.TELE_FRENO4_NRO_SERIE
-																		   and lusax2.Telemetria_Freno.TELE_TEMPERATURA = em.TELE_FRENO4_TEMPERATURA
-																		   and lusax2.Telemetria_Freno.TELE_TAMANIO_DISCO = em.TELE_FRENO4_TAMANIO_DISCO
-																		   and lusax2.Telemetria_Freno.TELE_FRENO_GROSOR_PASTILLA = em.TELE_FRENO4_GROSOR_PASTILLA)
-*/
