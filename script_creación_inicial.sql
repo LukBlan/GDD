@@ -23,7 +23,7 @@ CREATE TABLE [LUSAX2].[Telemetria] (
 );
 
 CREATE TABLE [LUSAX2].[Telemetria_Auto] (
-  TELE_AUTO_ID int NOT NULL identity(1,1),
+  TELE_AUTO_ID int NOT NULL,
   AUTO_ID int,
   TELE_AUTO_POSICION decimal(18,0),
   TELE_AUTO_NRO_VUELTA decimal(18,0),  
