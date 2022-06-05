@@ -223,8 +223,8 @@ where NEUMATICO4_NRO_SERIE_NUEVO is not null
 
 use test
 go
-insert into test.lusax2.Telemetria (TELEMETRIA_ID,TELE_AUTO_ID, carrera_id, sector_codigo, TELE_CAJA_CAMBIO_ID, TELE_MOTOR_ID)
-select DISTINCT TELE_AUTO_CODIGO,TA.TELE_AUTO_ID, c.carrera_id,codigo_sector, tc.TELE_CAJA_CAMBIO_ID, tm.TELE_MOTOR_ID
+insert into test.lusax2.Telemetria (TELE_AUTO_ID, carrera_id, sector_codigo, TELE_CAJA_CAMBIO_ID, TELE_MOTOR_ID)
+select DISTINCT TELE_AUTO_CODIGO, c.carrera_id,codigo_sector, tc.TELE_CAJA_CAMBIO_ID, tm.TELE_MOTOR_ID
 from GD1C2022.gd_esquema.Maestra as em								   
 JOIN LUSAX2.Carrera As c ON  c.carrera_id = (select distinct carrera_id 
                                              from LUSAX2.Carrera
@@ -244,14 +244,8 @@ JOIN LUSAX2.Telemetria_Motor As tm on tm.TELE_MOTOR_ID = (select TELE_MOTOR_ID
 																		   and LUSAX2.Telemetria_Motor.TELE_MOTOR_TEMP_AGUA = em.TELE_MOTOR_TEMP_AGUA
 																		   and LUSAX2.Telemetria_Motor.TELE_MOTOR_POTENCIA = em.TELE_MOTOR_POTENCIA)
 
-JOIN LUSAX2.Telemetria_Auto TA ON TA.TELE_AUTO_ID=(SELECT TELE_AUTO_ID
-											  FROM LUSAX2.Telemetria_Auto A
-											  WHERE A.TELE_AUTO_COMBUSTIBLE=EM.TELE_AUTO_COMBUSTIBLE AND A.TELE_AUTO_DISTANCIA_CARRERA=EM.TELE_AUTO_DISTANCIA_CARRERA AND
-													A.TELE_AUTO_DISTANCIA_VUELTA+A.TELE_AUTO_NRO_VUELTA+A.TELE_AUTO_POSICION+A.TELE_AUTO_TIEMPO_VUELTA+A.TELE_AUTO_VELOCIDAD=
-													EM.TELE_AUTO_DISTANCIA_VUELTA+EM.TELE_AUTO_NUMERO_VUELTA+EM.TELE_AUTO_POSICION+EM.TELE_AUTO_TIEMPO_VUELTA+EM.TELE_AUTO_VELOCIDAD)
 
-
-/*
+																		   /*
 JOIN LUSAX2.Telemetria_Freno As tf on tf.TELE_FRENO_ID = (select distinct TELE_FRENO_ID
                                                                            from LUSAX2.Telemetria_Freno
 																		   where LUSAX2.Telemetria_Freno.FRENO_NRO_SERIE = em.TELE_FRENO1_NRO_SERIE
