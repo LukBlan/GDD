@@ -1,8 +1,3 @@
-/*
-ALTER TABLE ----------
-ADD CONSTRAINT FK---------
-FOREIGN KEY (--------) REFERENCES ---------(---------);
-*/
 
 USE [test]
 GO
@@ -38,10 +33,6 @@ CREATE TABLE [LUSAX2].[Automovil] (
   AUTO_NUMERO int NOT NULL,
   ESCUDERIA_NOMBRE nvarchar(255),
   PILOTO_ID int,
- /* NEUMATICO_NRO_SERIE nvarchar(255),
-  MOTOR_NRO_SERIE nvarchar(255),
-  CAJA_NRO_SERIE nvarchar(255),
-  FRENO_NRO_SERIE nvarchar(255),*/
   AUTO_MODELO nvarchar(255),
   CONSTRAINT PK_AUTO_ID PRIMARY KEY (AUTO_ID),
 );
@@ -82,7 +73,6 @@ CREATE TABLE [LUSAX2].[Telemetria_CajaDeCambio] (
 );
 
 CREATE TABLE [LUSAX2].[CajaDeCambio] (
-  --CAJA_ID INT IDENTITY(1,1),
   CAJA_NRO_SERIE nvarchar(255),
   CAJA_MODELO nvarchar (50),
   AUTO_ID INT,
@@ -99,7 +89,6 @@ CREATE TABLE [LUSAX2].[Telemetria_Freno] (
 );
 
 CREATE TABLE [LUSAX2].[Freno] (
-  --FRENO_ID INT IDENTITY(1,1),
   FRENO_NRO_SERIE nvarchar(255),
   FRENO_POSICION nvarchar(255),
   AUTO_ID INT,
@@ -142,7 +131,6 @@ CREATE TABLE [LUSAX2].[Telemetria_Motor] (
 );
 
 CREATE TABLE [LUSAX2].[Motor] (
-  --MOTOR_ID INT IDENTITY(1,1),
   MOTOR_NRO_SERIE nvarchar(255),
   MOTOR_MODELO nvarchar(255),
   AUTO_ID INT,
@@ -175,7 +163,6 @@ CREATE TABLE [LUSAX2].[Parada] (
 );
 
 CREATE TABLE [LUSAX2].[Neumatico] (
-  --NEUMATICO_ID INT IDENTITY(1,1),
   NEUMATICO_NRO_SERIE nvarchar(255),
   NEUMATICO_POSICION nvarchar(255),
   NEUMATICO_TIPO nvarchar(255),
