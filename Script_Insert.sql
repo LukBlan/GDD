@@ -152,7 +152,7 @@ where TELE_CAJA_NRO_SERIE IS NOT NULL and TELE_CAJA_MODELO IS NOT NULL
 
 --Telemetria_CajaDeCambio
 INSERT INTO test.LUSAX2.Telemetria_CajaDeCambio(CAJA_NRO_SERIE,TELE_CAJA_TEMP_ACEITE,TELE_CAJA_RPM,TELE_CAJA_DESGASTE)
-select em.TELE_CAJA_NRO_SERIE,em.TELE_CAJA_TEMP_ACEITE,em.TELE_CAJA_RPM,em.TELE_CAJA_DESGASTE
+select distinct em.TELE_CAJA_NRO_SERIE,em.TELE_CAJA_TEMP_ACEITE,em.TELE_CAJA_RPM,em.TELE_CAJA_DESGASTE
 FROM GD1C2022.gd_esquema.Maestra AS em
 JOIN test.LUSAX2.CajaDeCambio AS c ON em.TELE_CAJA_NRO_SERIE = c.CAJA_NRO_SERIE
 
@@ -176,7 +176,7 @@ where TELE_FRENO4_NRO_SERIE IS NOT NULL
 
 --TELEMETRIA_MOTOR
 INSERT INTO test.LUSAX2.Telemetria_Motor (MOTOR_NRO_SERIE,TELE_MOTOR_RPM,TELE_MOTOR_TEMP_ACEITE,TELE_MOTOR_TEMP_AGUA,TELE_MOTOR_POTENCIA)
-select TELE_MOTOR_NRO_SERIE, TELE_MOTOR_RPM, TELE_MOTOR_TEMP_ACEITE, TELE_MOTOR_TEMP_AGUA, TELE_MOTOR_POTENCIA
+select distinct TELE_MOTOR_NRO_SERIE, TELE_MOTOR_RPM, TELE_MOTOR_TEMP_ACEITE, TELE_MOTOR_TEMP_AGUA, TELE_MOTOR_POTENCIA
 FROM GD1C2022.gd_esquema.Maestra AS em
 JOIN test.LUSAX2.Motor AS m ON em.TELE_MOTOR_NRO_SERIE = m.MOTOR_NRO_SERIE
 
@@ -278,13 +278,13 @@ where NEUMATICO4_NRO_SERIE_NUEVO is not null
 insert into test.lusax2.Telemetria (TELE_AUTO_ID, CARRERA_CODIGO, sector_codigo, TELE_CAJA_CAMBIO_ID, TELE_MOTOR_ID)
 select DISTINCT TELE_AUTO_CODIGO, em.[CODIGO_CARRERA], em.[CODIGO_SECTOR], tc.TELE_CAJA_CAMBIO_ID, tm.TELE_MOTOR_ID
 from GD1C2022.gd_esquema.Maestra as em
-JOIN LUSAX2.Telemetria_CajaDeCambio As tc on tc.TELE_CAJA_CAMBIO_ID = (select top 1 TELE_CAJA_CAMBIO_ID
+JOIN LUSAX2.Telemetria_CajaDeCambio As tc on tc.TELE_CAJA_CAMBIO_ID = (select TELE_CAJA_CAMBIO_ID
                                                                            from LUSAX2.Telemetria_CajaDeCambio
 																		   where LUSAX2.Telemetria_CajaDeCambio.CAJA_NRO_SERIE = em.TELE_CAJA_NRO_SERIE
 																		   and lusax2.Telemetria_CajaDeCambio.tele_caja_temp_aceite = em.TELE_CAJA_TEMP_ACEITE
 																		   and lusax2.Telemetria_CajaDeCambio.TELE_CAJA_RPM = em.TELE_CAJA_RPM
 																		   and lusax2.Telemetria_CajaDeCambio.tele_caja_desgaste = em.TELE_CAJA_DESGASTE)
-JOIN LUSAX2.Telemetria_Motor As tm on tm.TELE_MOTOR_ID = (select top 1 TELE_MOTOR_ID
+JOIN LUSAX2.Telemetria_Motor As tm on tm.TELE_MOTOR_ID = (select TELE_MOTOR_ID
                                                                            from LUSAX2.Telemetria_Motor
 																		   where LUSAX2.Telemetria_Motor.MOTOR_NRO_SERIE = em.TELE_MOTOR_NRO_SERIE
 																		   and LUSAX2.Telemetria_Motor.TELE_MOTOR_RPM = em.TELE_MOTOR_RPM
