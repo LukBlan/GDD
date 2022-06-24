@@ -5,15 +5,23 @@ CREATE SCHEMA [LUSAX2]
 GO
 
 create table lusax2.BI_tablaDeHechos (
-	auto_id int NOT NULL,
+	fact_id int identity(1,1),
+	auto_id int,
 	piloto_id int,
 	circuito_codigo int, 
 	tiempo_id int,
 	escuderia_nombre nvarchar(255),
 	neumatico_tipo nvarchar(255),
 	sector_tipo nvarchar(255),
-	[TELE_AUTO_VELOCIDAD] decimal(18,2)
-);
+	incidente_id int,
+	consumo_Combustible_promedio decimal(18,2),
+	velocidad_Maxima decimal(18,2),
+	tiempo_Promedio_Boxes decimal(18,2),
+	cantidad_Paradas int,
+	tiempo_Vuelta decimal(18,10),
+	cantidad_incidentes int,
+	CONSTRAINT PK_fact_id PRIMARY KEY (fact_id),
+); 
 
 CREATE TABLE lusax2.BI_Automovil (
   AUTO_ID int NOT NULL,
@@ -61,9 +69,41 @@ create table lusax2.BI_tipoSector (
 	CONSTRAINT PK_sector_tipo PRIMARY KEY (sector_tipo),
 );
 
+create table lusax2.BI_tipo_incidente (
+	INCIDENTE_ID  int  NOT NULL,
+	INCIDENTE_TIPO nvarchar(255),
+    INCIDENTE_BANDERA nvarchar(255),
+    INCIDENTE_TIEMPO decimal(18,2),
+	CONSTRAINT PK_INCIDENTE_ID PRIMARY KEY (INCIDENTE_ID),
+)
+
+create table lusax2.BI_Componente (
+	fact_componente_id int not null identity(1,1),
+	AUTO_ID int,
+	CIRCUITO_CODIGO int,
+	Desgaste_Caja decimal(18,2),
+	Desgaste_Neumatico decimal(18,6),
+	Desgaste_freno decimal(18,2),
+	desgaste_motor decimal(18,6),
+	numero_vuelta decimal(18,0)
+	constraint PK_fact_componente_id primary key (fact_componente_id)
+)
+
+alter table lusax2.BI_Componente
+add constraint PKC_AUTO_ID
+FOREIGN KEY (AUTO_ID) REFERENCES lusax2.BI_Automovil(AUTO_ID)
+
+alter table lusax2.BI_Componente
+add constraint PKC_CIRCUITO_CODIGO
+FOREIGN KEY (CIRCUITO_CODIGO) REFERENCES lusax2.BI_Circuito(CIRCUITO_CODIGO)
+
 alter table lusax2.BI_tablaDeHechos
 ADD CONSTRAINT FK_auto_id
 FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
+
+alter table lusax2.BI_tablaDeHechos
+ADD CONSTRAINT FK_incidente_id
+FOREIGN KEY (incidente_id) REFERENCES lusax2.BI_tipo_incidente(incidente_id);
 
 alter table lusax2.BI_tablaDeHechos
 ADD CONSTRAINT FK_piloto_id
@@ -116,13 +156,16 @@ select distinct [SECTOR_TIPO]
 from test.[LUSAX2].[Sector]
 
 insert into bi.lusax2.BI_Tiempo (anio, cuatrimestre)
-select distinct year([CARRERA_FECHA]), CASE
-    WHEN MONTH(CARRERA_FECHA) >= 1 AND MONTH(CARRERA_FECHA) <= 4 THEN 1
-    WHEN MONTH(CARRERA_FECHA) >= 5 AND MONTH(CARRERA_FECHA) <= 8 THEN 2
-    WHEN MONTH(CARRERA_FECHA) >= 9 AND MONTH(CARRERA_FECHA) <= 12 THEN 3
-    end AS "Cuatrimestre"
+select distinct year([CARRERA_FECHA]),	CASE
+											WHEN MONTH(CARRERA_FECHA) > 8	THEN 3
+											WHEN MONTH(CARRERA_FECHA) > 4	THEN 2
+											ELSE 1 
+										end AS "Cuatrimestre"
 from test.[LUSAX2].[Carrera]
 
+insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO)
+select INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO
+from test.[LUSAX2].[Incidente]
 
 /*
 insert into lusax2.BI_tablaDeHechos (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, piloto_id, neumatico_tipo, )
