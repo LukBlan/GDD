@@ -31,7 +31,7 @@ go
 
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view lusax2.Tiempo_Promedio_Parada_Cuatrimestre as
-SELECT ESCUDERIA_NOMBRE, bt.cuatrimestre, AVG(tiempo_Promedio_Boxes) 
+SELECT ESCUDERIA_NOMBRE, bt.cuatrimestre, AVG(tiempo_Promedio_Boxes) as promedioParada
 FROM bi.LUSAX2.BI_tablaDeHechos as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
 where tiempo_Promedio_Boxes is not null
 group by ESCUDERIA_NOMBRE, bt.cuatrimestre
