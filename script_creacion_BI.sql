@@ -213,16 +213,15 @@ create table #temp (
 )
 
 insert into #temp (auto_id, sector_tipo, CIRCUITO_CODIGO, ESCUDERIA_NOMBRE, piloto_id,  TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,neumatico_tipo, TELE_AUTO_TIEMPO_VUELTA)
-select a.auto_id, s.sector_tipo,s.CIRCUITO_CODIGO,e.ESCUDERIA_NOMBRE,a.piloto_id, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,n.neumatico_tipo, max(TELE_AUTO_TIEMPO_VUELTA)
-from test.LUSAX2.Escuderia as e		join test.LUSAX2.Automovil as a on e.ESCUDERIA_NOMBRE = a.ESCUDERIA_NOMBRE
-									join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
+select a.auto_id, s.sector_tipo,s.CIRCUITO_CODIGO,a.ESCUDERIA_NOMBRE,a.piloto_id, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,n.neumatico_tipo, max(TELE_AUTO_TIEMPO_VUELTA)
+from test.LUSAX2.Automovil as a		join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
 									join test.LUSAX2.Telemetria as t on t.TELE_AUTO_ID = ta.TELE_AUTO_ID
 									join test.LUSAX2.Sector as s on s.SECTOR_CODIGO = t.SECTOR_CODIGO
 									join test.LUSAX2.Carrera as c on c.Circuito_Codigo = s.CIRCUITO_CODIGO
 									join test.LUSAX2.neumatico as n on a.auto_id = n.auto_id 
 where ta.TELE_AUTO_TIEMPO_VUELTA != 0 and
 neumatico_tipo is not null
-group by e.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,a.piloto_id,s.sector_tipo, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,a.auto_id,n.neumatico_tipo
+group by a.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,a.piloto_id,s.sector_tipo, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,a.auto_id,n.neumatico_tipo
 order by 1,2,3
 
 
@@ -240,9 +239,8 @@ group by ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tie
 drop table #temp
 
 insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id, circuito_codigo, piloto_id, sector_tipo, neumatico_tipo, tiempo_id, tiempo_Promedio_Boxes)
-SELECT ES.ESCUDERIA_NOMBRE,	au.auto_id, ca.Circuito_Codigo, au.piloto_id, SECTOR_TIPO, NEUMATICO_TIPO, bt.tiempo_id, AVG(PARADA_BOX_TIEMPO)
+SELECT AU.ESCUDERIA_NOMBRE,	au.auto_id, ca.Circuito_Codigo, au.piloto_id, SECTOR_TIPO, NEUMATICO_TIPO, bt.tiempo_id, AVG(PARADA_BOX_TIEMPO)
 FROM test.LUSAX2.PARADA AS PA	JOIN test.LUSAX2.AUTOMOVIL AS AU ON PA.AUTO_ID = AU.AUTO_ID
-								JOIN test.LUSAX2.ESCUDERIA AS ES ON AU.ESCUDERIA_NOMBRE = ES.ESCUDERIA_NOMBRE
 								JOIN test.LUSAX2.TELEMETRIA_AUTO AS TA   ON AU.AUTO_ID = TA.AUTO_ID
 								JOIN test.LUSAX2.TELEMETRIA AS TE ON TA.TELE_AUTO_ID = TE.TELE_AUTO_ID
 								JOIN test.LUSAX2.CARRERA AS CA ON TE.CARRERA_CODIGO = CA.CARRERA_CODIGO
@@ -257,7 +255,24 @@ FROM test.LUSAX2.PARADA AS PA	JOIN test.LUSAX2.AUTOMOVIL AS AU ON PA.AUTO_ID = A
 																									ELSE 1
 																								end)
 where NEUMATICO_TIPO is not null
-GROUP BY ES.ESCUDERIA_NOMBRE, au.auto_id, ca.Circuito_Codigo,piloto_id, SECTOR_TIPO, bt.tiempo_id, NEUMATICO_TIPO
+GROUP BY au.ESCUDERIA_NOMBRE, au.auto_id, ca.Circuito_Codigo,piloto_id, SECTOR_TIPO, bt.tiempo_id, NEUMATICO_TIPO
+
+insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id, circuito_codigo, piloto_id, sector_tipo, neumatico_tipo, tiempo_id, cantidad_Paradas)
+select A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, NEUMATICO_TIPO, bt.tiempo_id, count(distinct PARADA_CODIGO_BOX)
+from test.lusax2.Parada as p	join test.LUSAX2.Automovil as a on a.AUTO_ID = p.AUTO_ID
+								join test.lusax2.Carrera as c on c.CARRERA_CODIGO = p.CARRERA_CODIGO
+								join test.lusax2.sector as s on s.CIRCUITO_CODIGO = c.Circuito_Codigo
+								join test.lusax2.Neumatico as n on n.AUTO_ID = a.AUTO_ID
+								join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
+																			from bi.lusax2.BI_Tiempo as bi1
+																			where bi1.anio = year(carrera_fecha) and
+																			bi1.cuatrimestre = CASE
+																									WHEN MONTH(carrera_fecha) > 8	THEN 3
+																									WHEN MONTH(carrera_fecha) > 4	THEN 2
+																									ELSE 1
+																								end)
+where NEUMATICO_TIPO is not null
+group by A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, NEUMATICO_TIPO, bt.tiempo_id
 
 /*
 select ci.Circuito_Codigo, yeaR(CARRERA_FECHA), count(distinct i.INCIDENTE_ID)
@@ -268,6 +283,7 @@ from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARR
 group by ci.Circuito_Codigo, yeaR(CARRERA_FECHA)
 order by 2, 3 desc
 */
+
 
 
 

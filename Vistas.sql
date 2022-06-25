@@ -45,6 +45,21 @@ where tiempo_Vuelta is not null
 group by [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio
 go
 
+-- Cantidad de Paradas x Circuito x Escuderia x Anio
+CREATE view lusax2.CantidadDeParadas as
+select escuderia_nombre,circuito_codigo, bt.anio, sum(distinct cantidad_Paradas) as cantidadDeParadas
+from bi.LUSAX2.BI_tablaDeHechos as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
+where cantidad_Paradas is not null
+group by circuito_codigo, escuderia_nombre,bt.anio
+go
+
+/*
+select ESCUDERIA_NOMBRE,c.Circuito_Codigo,year([CARRERA_FECHA]), count(PARADA_CODIGO_BOX)
+from LUSAX2.Parada as p	join lusax2.automovil as a on a.auto_id = p.auto_id
+						join lusax2.Carrera as c on p.CARRERA_CODIGO = c.CARRERA_CODIGO
+group by ESCUDERIA_NOMBRE,[CARRERA_FECHA],c.Circuito_Codigo
+*/
+
 --Circuitos mas peligrosos
 CREATE view Circuitos_mas_peligrosos as
 select top 3 CI.CIRCUITO_NOMBRE , CI.CIRCUITO_CODIGO , COUNT(INCIDENTE_ID) as "Id de incidente"
