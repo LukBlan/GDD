@@ -199,3 +199,44 @@ em.CIRCUITO_CODIGO = CI.CIRCUITO_CODIGO and
 EM.TELE_AUTO_NUMERO_VUELTA = TA.TELE_AUTO_NRO_VUELTA and
 em.CODIGO_CARRERA = CA.CARRERA_CODIGO
 group by AU.AUTO_ID,CI.Circuito_Codigo,TELE_AUTO_NRO_VUELTA,TC.TELE_CAJA_DESGASTE,em.TELE_NEUMATICO1_PROFUNDIDAD,em.TELE_NEUMATICO2_PROFUNDIDAD,em.TELE_NEUMATICO3_PROFUNDIDAD,em.TELE_NEUMATICO4_PROFUNDIDAD,em.TELE_FRENO1_GROSOR_PASTILLA,em.TELE_FRENO2_GROSOR_PASTILLA,em.TELE_FRENO3_GROSOR_PASTILLA,em.TELE_FRENO4_GROSOR_PASTILLA
+
+
+create table #temp (
+	ESCUDERIA_NOMBRE nvarchar (255),
+	auto_id int,
+	CIRCUITO_CODIGO int,
+	piloto_id int,
+	sector_tipo nvarchar(255),
+	TELE_AUTO_NRO_VUELTA int,
+	CARRERA_FECHA date,
+	neumatico_tipo nvarchar(255),
+	TELE_AUTO_TIEMPO_VUELTA decimal(18,10),
+)
+
+
+insert into #temp (auto_id, sector_tipo, CIRCUITO_CODIGO, ESCUDERIA_NOMBRE, piloto_id,  TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,neumatico_tipo, TELE_AUTO_TIEMPO_VUELTA)
+select a.auto_id, s.sector_tipo,s.CIRCUITO_CODIGO,e.ESCUDERIA_NOMBRE,a.piloto_id, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,n.neumatico_tipo, max(TELE_AUTO_TIEMPO_VUELTA)
+from test.LUSAX2.Escuderia as e		join test.LUSAX2.Automovil as a on e.ESCUDERIA_NOMBRE = a.ESCUDERIA_NOMBRE
+									join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
+									join test.LUSAX2.Telemetria as t on t.TELE_AUTO_ID = ta.TELE_AUTO_ID
+									join test.LUSAX2.Sector as s on s.SECTOR_CODIGO = t.SECTOR_CODIGO
+									join test.LUSAX2.Carrera as c on c.Circuito_Codigo = s.CIRCUITO_CODIGO
+									join test.LUSAX2.neumatico as n on a.auto_id = n.auto_id 
+where ta.TELE_AUTO_TIEMPO_VUELTA != 0 and
+neumatico_tipo is not null
+group by e.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,a.piloto_id,s.sector_tipo, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,a.auto_id,n.neumatico_tipo
+order by 1,2,3
+
+
+insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id,circuito_codigo,piloto_id, sector_tipo, tiempo_id,  neumatico_tipo, tiempo_Vuelta)
+select ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tiempo_id,neumatico_tipo , min(TELE_AUTO_TIEMPO_VUELTA)
+from bi.#temp join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
+																			from bi.lusax2.BI_Tiempo as bi1
+																			where bi1.anio = year(carrera_fecha) and
+																			bi1.cuatrimestre = CASE
+																									WHEN MONTH(carrera_fecha) > 8	THEN 3
+																									WHEN MONTH(carrera_fecha) > 4	THEN 2
+																									ELSE 1
+																								end)
+group by ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tiempo_id, neumatico_tipo
+

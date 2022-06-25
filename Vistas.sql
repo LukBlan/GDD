@@ -4,22 +4,26 @@ select top 3 circuito_codigo,tiempo_Promedio_Boxes
 from LUSAX2.BI_tablaDeHechos
 group by circuito_codigo,tiempo_Promedio_Boxes
 order by tiempo_Promedio_Boxes desc
+
 --Desgaste De cada componente por vuelta
 create view lusax2.desgaste_componentes as
 select auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
 from LUSAX2.BI_Componente
 group by auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
+
 --Max Velocidad en cada sector por un auto
 CREATE view lusax2.Max_Velocidad_Auto_Sector as
 select auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
 from lusax2.BI_tablaDeHechos
 group by auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+
 --Mayor consumo de combustible
 CREATE view lusax2.circuito_mas_gasto_combustibles as
 select top 3 circuito_codigo,consumo_Combustible_promedio
 from LUSAX2.BI_tablaDeHechos
 group by circuito_codigo,consumo_Combustible_promedio
 order by consumo_Combustible_promedio desc
+
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view Tiempo_Promedio_Parada_Cuatrimestre as
 SELECT ES.ESCUDERIA_NOMBRE,AVG(PARADA_BOX_TIEMPO) as "Promedio",YEAR(CA.CARRERA_FECHA) as "ANIO", CASE  
@@ -40,10 +44,10 @@ GROUP BY ES.ESCUDERIA_NOMBRE,YEAR(CA.CARRERA_FECHA), CASE
 	end,YEAR(CA.CARRERA_FECHA)
 
 --Max Velocidad en cada sector por un auto
-CREATE view lusax2.Max_Velocidad_Auto_Sector as
-select auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
-from lusax2.BI_tablaDeHechos
-group by auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+CREATE view lusax2.VueltaMasRapida as
+select [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio,  min(tiempo_Vuelta) as tiempoVueltaMasRapida
+from lusax2.BI_tablaDeHechos as tdh	join [LUSAX2].[BI_Tiempo] as dt on tdh.tiempo_id = dt.tiempo_id
+group by [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio
 
 --Circuitos mas peligrosos
 CREATE view Circuitos_mas_peligrosos as
@@ -53,17 +57,3 @@ LEFT JOIN lusax2.CARRERA AS CA ON CA.CIRCUITO_CODIGO = CI.CIRCUITO_CODIGO
 LEFT JOIN LUSAX2.INCIDENTE AS IC ON CA.CARRERA_CODIGO = IC.CARRERA_CODIGO
 WHERE YEAR(CA.CARRERA_FECHA) = 2022  -- al no especificar el año el tp pusimos que tomara el año actual, no da ninguna respuesta ya que no hay carreras en el 2022, si lo cambiamos por 2020 si da rtas
 GROUP BY CI.CIRCUITO_NOMBRE , CI.CIRCUITO_CODIGO
-
-
--- Mejor Tiempo de Vuelta de Cada Escuderia por Circuito
-/* -- es max max(TELE_AUTO_TIEMPO_VUELTA) por que devuelve el ultimo valor registrado para esa vuelta (que seria el final de la vuelta)
-select e.ESCUDERIA_NOMBRE,a.auto_id, s.CIRCUITO_CODIGO, ta.TELE_AUTO_NRO_VUELTA, year(CARRERA_FECHA), max(TELE_AUTO_TIEMPO_VUELTA)
-from test.LUSAX2.Escuderia as e		join test.LUSAX2.Automovil as a on e.ESCUDERIA_NOMBRE = a.ESCUDERIA_NOMBRE
-									join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
-									join test.LUSAX2.Telemetria as t on t.TELE_AUTO_ID = ta.TELE_AUTO_ID
-									join test.LUSAX2.Sector as s on s.SECTOR_CODIGO = t.SECTOR_CODIGO
-									join test.LUSAX2.Carrera as c on c.Circuito_Codigo = s.CIRCUITO_CODIGO
-where ta.TELE_AUTO_TIEMPO_VUELTA != 0
-group by e.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,ta.TELE_AUTO_NRO_VUELTA, year(CARRERA_FECHA),a.auto_id
-order by 1,2,3
-*/
