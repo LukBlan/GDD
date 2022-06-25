@@ -4,6 +4,11 @@ select top 3 PA.PARADA_BOX_TIEMPO,CA.CIRCUITO_CODIGO,CA.CARRERA_CODIGO
 from test.LUSAX2.PARADA as PA
 left join test.LUSAX2.CARRERA as CA on CA.CARRERA_CODIGO = PA.CARRERA_CODIGO
 order by 1 desc
+--Desgaste De cada componente por vuelta
+create view desgaste_componentes as
+select auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
+from LUSAX2.BI_Componente
+group by auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
 
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view Tiempo_Promedio_Parada_Cuatrimestre as
