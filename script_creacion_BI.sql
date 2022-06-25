@@ -19,7 +19,7 @@ create table lusax2.BI_tablaDeHechos (
 	tiempo_Promedio_Boxes decimal(18,2),
 	cantidad_Paradas int,
 	tiempo_Vuelta decimal(18,10),
-	cantidad_incidentes int,
+	promedio_incidentes decimal(18,2),
 	CONSTRAINT PK_fact_id PRIMARY KEY (fact_id),
 ); 
 
@@ -274,6 +274,23 @@ from test.lusax2.Parada as p	join test.LUSAX2.Automovil as a on a.AUTO_ID = p.AU
 where NEUMATICO_TIPO is not null
 group by A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, NEUMATICO_TIPO, bt.tiempo_id
 
+insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id, circuito_codigo, piloto_id, sector_tipo, tiempo_id, promedio_incidentes)
+select A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, bt.tiempo_id, count(distinct i.INCIDENTE_ID)/cast((select count(distinct year(carrera_fecha))
+																																			from test.lusax2.carrera) as float)
+from test.LUSAX2.AutoxIncidente as ai	join test.LUSAX2.Automovil as a on a.AUTO_ID = ai.AUTO_ID
+										join test.LUSAX2.Incidente as i on ai.INCIDENTE_ID	= i.INCIDENTE_ID
+										join test.LUSAX2.Carrera as c on c.CARRERA_CODIGO = i.CARRERA_CODIGO
+										join test.lusax2.sector as s on s.CIRCUITO_CODIGO = c.Circuito_Codigo
+										join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
+																			from bi.lusax2.BI_Tiempo as bi1
+																			where bi1.anio = year(carrera_fecha) and
+																			bi1.cuatrimestre = CASE
+																									WHEN MONTH(carrera_fecha) > 8	THEN 3
+																									WHEN MONTH(carrera_fecha) > 4	THEN 2
+																									ELSE 1
+																								end)
+group by A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, bt.tiempo_id
+
 /*
 select ci.Circuito_Codigo, yeaR(CARRERA_FECHA), count(distinct i.INCIDENTE_ID)
 from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARRERA_CODIGO = ca.CARRERA_CODIGO
@@ -284,6 +301,17 @@ group by ci.Circuito_Codigo, yeaR(CARRERA_FECHA)
 order by 2, 3 desc
 */
 
+/*
+select *
+from bi.LUSAX2.[promedioIncidentes]
 
 
 
+select A.ESCUDERIA_NOMBRE, s.SECTOR_TIPO, count(distinct i.INCIDENTE_ID)
+from test.LUSAX2.AutoxIncidente as ai	join test.LUSAX2.Automovil as a on a.AUTO_ID = ai.AUTO_ID
+										join test.LUSAX2.Incidente as i on ai.INCIDENTE_ID	= i.INCIDENTE_ID
+										join test.LUSAX2.Carrera as c on c.CARRERA_CODIGO = i.CARRERA_CODIGO
+										join test.lusax2.sector as s on s.CIRCUITO_CODIGO = c.Circuito_Codigo
+group by A.ESCUDERIA_NOMBRE, s.SECTOR_TIPO
+
+*/
