@@ -1,15 +1,25 @@
 --Top 3 de circuitos donde hay mayor cantidad de tiempo en boxes
-create view mayor_Tiempo_En_Parada as
-select top 3 PA.PARADA_BOX_TIEMPO,CA.CIRCUITO_CODIGO,CA.CARRERA_CODIGO
-from test.LUSAX2.PARADA as PA
-left join test.LUSAX2.CARRERA as CA on CA.CARRERA_CODIGO = PA.CARRERA_CODIGO
-order by 1 desc
+create view lusax2.Circuitos_Mayor_tiempo_boxes as
+select top 3 circuito_codigo,tiempo_Promedio_Boxes
+from LUSAX2.BI_tablaDeHechos
+group by circuito_codigo,tiempo_Promedio_Boxes
+order by tiempo_Promedio_Boxes desc
 --Desgaste De cada componente por vuelta
 create view lusax2.desgaste_componentes as
 select auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
 from LUSAX2.BI_Componente
 group by auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
-
+--Max Velocidad en cada sector por un auto
+CREATE view lusax2.Max_Velocidad_Auto_Sector as
+select auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+from lusax2.BI_tablaDeHechos
+group by auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+--Mayor consumo de combustible
+CREATE view lusax2.circuito_mas_gasto_combustibles as
+select top 3 circuito_codigo,consumo_Combustible_promedio
+from LUSAX2.BI_tablaDeHechos
+group by circuito_codigo,consumo_Combustible_promedio
+order by consumo_Combustible_promedio desc
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view Tiempo_Promedio_Parada_Cuatrimestre as
 SELECT ES.ESCUDERIA_NOMBRE,AVG(PARADA_BOX_TIEMPO) as "Promedio",YEAR(CA.CARRERA_FECHA) as "ANIO", CASE  
