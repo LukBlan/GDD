@@ -156,11 +156,11 @@ select distinct [SECTOR_TIPO]
 from test.[LUSAX2].[Sector]
 
 insert into bi.lusax2.BI_Tiempo (anio, cuatrimestre)
-select distinct year([CARRERA_FECHA]),	CASE
-											WHEN MONTH(CARRERA_FECHA) > 8	THEN 3
-											WHEN MONTH(CARRERA_FECHA) > 4	THEN 2
-											ELSE 1 
-										end AS "Cuatrimestre"
+select distinct year([CARRERA_FECHA]), CASE
+									        WHEN MONTH(CARRERA_FECHA) > 8	THEN 3
+										    WHEN MONTH(CARRERA_FECHA) > 4	THEN 2
+										    ELSE 1 
+									   end AS "Cuatrimestre"
 from test.[LUSAX2].[Carrera]
 
 insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO)
