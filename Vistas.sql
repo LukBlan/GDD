@@ -40,4 +40,15 @@ WHERE YEAR(CA.CARRERA_FECHA) = 2022  -- al no especificar el año el tp pusimos 
 GROUP BY CI.CIRCUITO_NOMBRE , CI.CIRCUITO_CODIGO
 
 
-
+-- Mejor Tiempo de Vuelta de Cada Escuderia por Circuito
+/* -- es max max(TELE_AUTO_TIEMPO_VUELTA) por que devuelve el ultimo valor registrado para esa vuelta (que seria el final de la vuelta)
+select e.ESCUDERIA_NOMBRE,a.auto_id, s.CIRCUITO_CODIGO, ta.TELE_AUTO_NRO_VUELTA, year(CARRERA_FECHA), max(TELE_AUTO_TIEMPO_VUELTA)
+from test.LUSAX2.Escuderia as e		join test.LUSAX2.Automovil as a on e.ESCUDERIA_NOMBRE = a.ESCUDERIA_NOMBRE
+									join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
+									join test.LUSAX2.Telemetria as t on t.TELE_AUTO_ID = ta.TELE_AUTO_ID
+									join test.LUSAX2.Sector as s on s.SECTOR_CODIGO = t.SECTOR_CODIGO
+									join test.LUSAX2.Carrera as c on c.Circuito_Codigo = s.CIRCUITO_CODIGO
+where ta.TELE_AUTO_TIEMPO_VUELTA != 0
+group by e.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,ta.TELE_AUTO_NRO_VUELTA, year(CARRERA_FECHA),a.auto_id
+order by 1,2,3
+*/
