@@ -20,6 +20,7 @@ create table lusax2.BI_tablaDeHechos (
 	cantidad_Paradas int,
 	tiempo_Vuelta decimal(18,10),
 	promedio_incidentes decimal(18,2),
+	cantidad_Incidentes int,
 	CONSTRAINT PK_fact_id PRIMARY KEY (fact_id),
 ); 
 
@@ -289,29 +290,22 @@ from test.LUSAX2.AutoxIncidente as ai	join test.LUSAX2.Automovil as a on a.AUTO_
 																									WHEN MONTH(carrera_fecha) > 4	THEN 2
 																									ELSE 1
 																								end)
-group by A.ESCUDERIA_NOMBRE,	a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, bt.tiempo_id
+group by A.ESCUDERIA_NOMBRE, a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR_TIPO, bt.tiempo_id
 
-/*
-select ci.Circuito_Codigo, yeaR(CARRERA_FECHA), count(distinct i.INCIDENTE_ID)
+insert into lusax2.BI_tablaDeHechos (auto_id, piloto_id, escuderia_nombre, circuito_codigo, sector_tipo, tiempo_id, cantidad_Incidentes)
+select a.auto_id, a.PILOTO_ID, a.ESCUDERIA_NOMBRE, ci.Circuito_Codigo, s.SECTOR_TIPO, tiempo_id , count(distinct i.INCIDENTE_ID)
 from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARRERA_CODIGO = ca.CARRERA_CODIGO
 									join test.LUSAX2.Circuito as ci on ci.CIRCUITO_CODIGO = ca.Circuito_Codigo
 									join test.[LUSAX2].[AutoxIncidente] as ai on i.INCIDENTE_ID = ai.INCIDENTE_ID
 									join test.LUSAX2.Automovil as a on ai.auto_id = a.AUTO_ID
-group by ci.Circuito_Codigo, yeaR(CARRERA_FECHA)
-order by 2, 3 desc
-*/
-
-/*
-select *
-from bi.LUSAX2.[promedioIncidentes]
-
-
-
-select A.ESCUDERIA_NOMBRE, s.SECTOR_TIPO, count(distinct i.INCIDENTE_ID)
-from test.LUSAX2.AutoxIncidente as ai	join test.LUSAX2.Automovil as a on a.AUTO_ID = ai.AUTO_ID
-										join test.LUSAX2.Incidente as i on ai.INCIDENTE_ID	= i.INCIDENTE_ID
-										join test.LUSAX2.Carrera as c on c.CARRERA_CODIGO = i.CARRERA_CODIGO
-										join test.lusax2.sector as s on s.CIRCUITO_CODIGO = c.Circuito_Codigo
-group by A.ESCUDERIA_NOMBRE, s.SECTOR_TIPO
-
-*/
+									join test.lusax2.Neumatico as n on n.AUTO_ID = a.AUTO_ID
+									join test.LUSAX2.sector as s on s.CIRCUITO_CODIGO = ci.CIRCUITO_CODIGO
+									join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
+																			from bi.lusax2.BI_Tiempo as bi1
+																			where bi1.anio = year(carrera_fecha) and
+																			bi1.cuatrimestre = CASE
+																									WHEN MONTH(carrera_fecha) > 8	THEN 3
+																									WHEN MONTH(carrera_fecha) > 4	THEN 2
+																									ELSE 1
+																								end)
+group by a.auto_id, a.PILOTO_ID, a.ESCUDERIA_NOMBRE, ci.Circuito_Codigo, s.SECTOR_TIPO, bt.tiempo_id 
