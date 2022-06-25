@@ -25,14 +25,10 @@ GROUP BY ES.ESCUDERIA_NOMBRE,YEAR(CA.CARRERA_FECHA), CASE
 	end,YEAR(CA.CARRERA_FECHA)
 
 --Max Velocidad en cada sector por un auto
-CREATE view Max_Velocidad_Auto_Sector as
-SELECT AU.AUTO_ID, SE.SECTOR_TIPO,CI.CIRCUITO_CODIGO, MAX (TELE_AUTO_VELOCIDAD) AS "MAXIMA VELOCIDAD" 
-FROM LUSAX2.TELEMETRIA AS TE 
-LEFT JOIN LUSAX2.TELEMETRIA_AUTO AS TU ON TE.TELE_AUTO_ID = TU.TELE_AUTO_ID
-LEFT JOIN LUSAX2.Automovil AS AU ON AU.AUTO_ID = TU.AUTO_ID
-LEFT JOIN LUSAX2.SECTOR AS SE ON TE.SECTOR_CODIGO = SE.SECTOR_CODIGO
-LEFT JOIN LUSAX2.CIRCUITO AS CI ON CI.CIRCUITO_CODIGO = SE.CIRCUITO_CODIGO
-GROUP BY AU.AUTO_ID, SE.SECTOR_TIPO,CI.CIRCUITO_CODIGO
+CREATE view lusax2.Max_Velocidad_Auto_Sector as
+select auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+from lusax2.BI_tablaDeHechos
+group by auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
 
 --Circuitos mas peligrosos
 CREATE view Circuitos_mas_peligrosos as

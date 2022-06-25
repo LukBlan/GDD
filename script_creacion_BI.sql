@@ -167,14 +167,20 @@ insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE
 select INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO
 from test.[LUSAX2].[Incidente]
 
-/*
-insert into lusax2.BI_tablaDeHechos (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, piloto_id, neumatico_tipo, )
-select a.auto_id, s.sector_tipo, s.circuito_codigo,a.[ESCUDERIA_NOMBRE], c.carrera_fecha,a.[PILOTO_ID], n.[NEUMATICO_TIPO], max([TELE_AUTO_VELOCIDAD])
-from lusax2.automovil as a	join lusax2.telemetria_auto as ta on a.auto_id = ta.auto_id
-							join lusax2.telemetria as t on t.tele_auto_id = ta.tele_auto_id 
-							join lusax2.sector as s on s.sector_codigo = t.sector_codigo
-							join lusax2.carrera as c on c.[CARRERA_CODIGO] = t.[CARRERA_CODIGO]
-							join lusax2.neumatico as n on a.auto_id = n.auto_id
-
-group by a.auto_id, s.sector_tipo, s.circuito_codigo,a.[ESCUDERIA_NOMBRE], c.carrera_fecha,a.[PILOTO_ID], n.[NEUMATICO_TIPO]
-*/
+insert into lusax2.BI_tablaDeHechos (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, neumatico_tipo, velocidad_Maxima)
+select a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID], n.[NEUMATICO_TIPO], max([TELE_AUTO_VELOCIDAD])
+from test.lusax2.automovil as a	join test.lusax2.telemetria_auto as ta on a.auto_id = ta.auto_id
+							join test.lusax2.telemetria as t on t.tele_auto_id = ta.tele_auto_id 
+							join test.lusax2.sector as s on s.sector_codigo = t.sector_codigo
+							join test.lusax2.carrera as c on c.[CARRERA_CODIGO] = t.[CARRERA_CODIGO]
+							join test.lusax2.neumatico as n on a.auto_id = n.auto_id
+							join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (	select tiempo_id
+																			from bi.lusax2.BI_Tiempo as bi1
+																			where bi1.anio = year(c.carrera_fecha) and
+																			bi1.cuatrimestre = CASE
+																									WHEN MONTH(c.carrera_fecha) > 8	THEN 3
+																									WHEN MONTH(c.carrera_fecha) > 4	THEN 2
+																									ELSE 1
+																								end)
+where neumatico_tipo is not null
+group by a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID], n.[NEUMATICO_TIPO]
