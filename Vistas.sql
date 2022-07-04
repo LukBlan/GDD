@@ -15,16 +15,16 @@ go
 
 --Max Velocidad en cada sector por un auto
 CREATE view lusax2.Max_Velocidad_Auto_Sector as
-select auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
-from lusax2.BI_tablaDeHechos
+select auto_id, sector_tipo, circuito_codigo, max(velocidad_Maxima)
+from lusax2.BI_Carrera
 where velocidad_Maxima is not null
-group by auto_id, sector_tipo, circuito_codigo, velocidad_Maxima
+group by auto_id, sector_tipo, circuito_codigo
 go
 
---Mayor consumo de combustible
+--Mayor consumo de combustible (Puede ser que no sea correcto)
 CREATE view lusax2.circuito_mas_gasto_combustibles as
 select top 3 circuito_codigo,consumo_Combustible_promedio
-from LUSAX2.BI_tablaDeHechos
+from LUSAX2.BI_Carrera
 group by circuito_codigo,consumo_Combustible_promedio
 order by consumo_Combustible_promedio desc
 go
