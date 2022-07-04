@@ -4,24 +4,48 @@ go
 CREATE SCHEMA [LUSAX2]
 GO
 
-create table lusax2.BI_tablaDeHechos (
-	fact_id int identity(1,1),
-	auto_id int,
+create table lusax2.BI_Carrera (
+	fact_Carrera_Vuelta_id int identity(1,1),
+	circuito_codigo int,
 	piloto_id int,
-	circuito_codigo int, 
+	tiempo_id int,
+	escuderia_nombre nvarchar(255),
+	sector_tipo nvarchar(255),
+	auto_id int,
+	Desgaste_Caja decimal(18,2),
+	Desgaste_Neumatico decimal(18,6),
+	Desgaste_freno decimal(18,2),
+	desgaste_motor decimal(18,6),
+	numero_vuelta decimal(18,0),
+	consumo_Combustible_promedio decimal(18,2),
+	velocidad_Maxima decimal(18,2),
+	tiempo_Vuelta decimal(18,10),
+	CONSTRAINT PK_fact_Carrera_Vuelta_id PRIMARY KEY (fact_Carrera_Vuelta_id)
+); 
+
+create table lusax2.BI_Incidente (
+	fact_incidente_id int identity(1,1),
+	incidente_id int,
+	circuito_codigo int,
+	piloto_id int,
+	tiempo_id int,
+	escuderia_nombre nvarchar(255),
+	auto_id int,
+	cantidad_Incidentes int,
+	CONSTRAINT PK_fact_incidente_id PRIMARY KEY (fact_incidente_id),
+); 
+
+create table lusax2.BI_Parada (
+	fact_Parada_id int identity(1,1),
+	circuito_codigo int,
+	piloto_id int,
 	tiempo_id int,
 	escuderia_nombre nvarchar(255),
 	neumatico_tipo nvarchar(255),
-	sector_tipo nvarchar(255),
-	incidente_id int,
-	consumo_Combustible_promedio decimal(18,2),
-	velocidad_Maxima decimal(18,2),
+	auto_id int,
 	tiempo_Promedio_Boxes decimal(18,2),
 	cantidad_Paradas int,
-	tiempo_Vuelta decimal(18,10),
-	promedio_incidentes decimal(18,2),
-	cantidad_Incidentes int,
-	CONSTRAINT PK_fact_id PRIMARY KEY (fact_id),
+	CONSTRAINT PK_fact_Parada_id PRIMARY KEY (fact_Parada_id),
 ); 
 
 CREATE TABLE lusax2.BI_Automovil (
@@ -78,57 +102,80 @@ create table lusax2.BI_tipo_incidente (
 	CONSTRAINT PK_INCIDENTE_ID PRIMARY KEY (INCIDENTE_ID),
 )
 
-create table lusax2.BI_Componente (
-	fact_componente_id int not null identity(1,1),
-	AUTO_ID int,
-	CIRCUITO_CODIGO int,
-	Desgaste_Caja decimal(18,2),
-	Desgaste_Neumatico decimal(18,6),
-	Desgaste_freno decimal(18,2),
-	desgaste_motor decimal(18,6),
-	numero_vuelta decimal(18,0)
-	constraint PK_fact_componente_id primary key (fact_componente_id)
-)
-
-alter table lusax2.BI_Componente
-add constraint PKC_AUTO_ID
-FOREIGN KEY (AUTO_ID) REFERENCES lusax2.BI_Automovil(AUTO_ID)
-
-alter table lusax2.BI_Componente
-add constraint PKC_CIRCUITO_CODIGO
-FOREIGN KEY (CIRCUITO_CODIGO) REFERENCES lusax2.BI_Circuito(CIRCUITO_CODIGO)
-
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_auto_id
+alter table lusax2.BI_Parada
+ADD CONSTRAINT FKP_auto_id
 FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
 
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_incidente_id
-FOREIGN KEY (incidente_id) REFERENCES lusax2.BI_tipo_incidente(incidente_id);
-
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_piloto_id
+alter table lusax2.BI_Parada
+ADD CONSTRAINT FKP_piloto_id
 FOREIGN KEY (piloto_id) REFERENCES lusax2.BI_Piloto(piloto_id);
 
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_circuito_codigo
+alter table lusax2.BI_Parada
+ADD CONSTRAINT FKP_circuito_codigo
 FOREIGN KEY (circuito_codigo) REFERENCES lusax2.BI_Circuito(circuito_codigo);
 
-alter table lusax2.BI_tablaDeHechos
+alter table lusax2.BI_Parada
 ADD CONSTRAINT FK_neumatico_tipo
 FOREIGN KEY (neumatico_tipo) REFERENCES lusax2.BI_tipoNeumatico(neumatico_tipo);
 
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_tiempo_id
+alter table lusax2.BI_Parada
+ADD CONSTRAINT FKP_tiempo_id
 FOREIGN KEY (tiempo_id) REFERENCES lusax2.BI_Tiempo(tiempo_id);
 
-alter table lusax2.BI_tablaDeHechos
-ADD CONSTRAINT FK_ESCUDERIA_NOMBRE
+alter table lusax2.BI_Parada
+ADD CONSTRAINT FKP_ESCUDERIA_NOMBRE
 FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
 
-alter table lusax2.BI_tablaDeHechos
+alter table lusax2.BI_Carrera
+ADD CONSTRAINT FKC_auto_id
+FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
+
+alter table lusax2.BI_Carrera
+ADD CONSTRAINT FKC_piloto_id
+FOREIGN KEY (piloto_id) REFERENCES lusax2.BI_Piloto(piloto_id);
+
+alter table lusax2.BI_Carrera
+ADD CONSTRAINT FKC_circuito_codigo
+FOREIGN KEY (circuito_codigo) REFERENCES lusax2.BI_Circuito(circuito_codigo);
+
+alter table lusax2.BI_Carrera
+ADD CONSTRAINT FKC_tiempo_id
+FOREIGN KEY (tiempo_id) REFERENCES lusax2.BI_Tiempo(tiempo_id);
+
+alter table lusax2.BI_Carrera
+ADD CONSTRAINT FKC_ESCUDERIA_NOMBRE
+FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
+
+alter table lusax2.BI_Carrera
 ADD CONSTRAINT FK_sector_tipo
 FOREIGN KEY (sector_tipo) REFERENCES lusax2.BI_tipoSector(sector_tipo);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FKI_auto_id
+FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FK_incidente_id
+FOREIGN KEY (incidente_id) REFERENCES lusax2.BI_tipo_incidente(incidente_id);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FKI_piloto_id
+FOREIGN KEY (piloto_id) REFERENCES lusax2.BI_Piloto(piloto_id);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FKI_circuito_codigo
+FOREIGN KEY (circuito_codigo) REFERENCES lusax2.BI_Circuito(circuito_codigo);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FKI_tiempo_id
+FOREIGN KEY (tiempo_id) REFERENCES lusax2.BI_Tiempo(tiempo_id);
+
+alter table lusax2.BI_Incidente
+ADD CONSTRAINT FKI_ESCUDERIA_NOMBRE
+FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
+
+
+/*
 
 insert into bi.[LUSAX2].[BI_Automovil] ([AUTO_ID],[AUTO_NUMERO],[AUTO_MODELO])
 select distinct [AUTO_ID], [AUTO_NUMERO], [AUTO_MODELO]
@@ -309,3 +356,5 @@ from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARR
 																									ELSE 1
 																								end)
 group by a.auto_id, a.PILOTO_ID, a.ESCUDERIA_NOMBRE, ci.Circuito_Codigo, s.SECTOR_TIPO, bt.tiempo_id 
+
+*/
