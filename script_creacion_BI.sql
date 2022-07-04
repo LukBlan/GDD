@@ -244,6 +244,7 @@ EM.TELE_AUTO_NUMERO_VUELTA = TA.TELE_AUTO_NRO_VUELTA and
 em.CODIGO_CARRERA = CA.CARRERA_CODIGO
 group by AU.AUTO_ID,CI.Circuito_Codigo,TELE_AUTO_NRO_VUELTA,TC.TELE_CAJA_DESGASTE,em.TELE_NEUMATICO1_PROFUNDIDAD,em.TELE_NEUMATICO2_PROFUNDIDAD,em.TELE_NEUMATICO3_PROFUNDIDAD,em.TELE_NEUMATICO4_PROFUNDIDAD,em.TELE_FRENO1_GROSOR_PASTILLA,em.TELE_FRENO2_GROSOR_PASTILLA,em.TELE_FRENO3_GROSOR_PASTILLA,em.TELE_FRENO4_GROSOR_PASTILLA
 */
+/*
 create table #temp (
 	ESCUDERIA_NOMBRE nvarchar (255),
 	auto_id int,
@@ -282,8 +283,9 @@ from bi.#temp join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
 group by ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tiempo_id, neumatico_tipo
 drop table #temp
 */
-insert into lusax2.BI_Parada(circuito_codigo, piloto_id,tiempo_id, escuderia_nombre,neumatico_tipo,tiempo_promedio_boxes,cantidad_Paradas)
-select ca.Circuito_Codigo, a.piloto_id,bt.tiempo_id,e.escuderia_nombre, NEUMATICO_TIPO,  count(distinct PARADA_CODIGO_BOX), AVG(PARADA_BOX_TIEMPO)
+
+insert into lusax2.BI_Parada (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, neumatico_tipo, tiempo_promedio_boxes, cantidad_Paradas)
+select ca.Circuito_Codigo, a.piloto_id,bt.tiempo_id,e.escuderia_nombre, NEUMATICO_TIPO, count(distinct PARADA_CODIGO_BOX), AVG(PARADA_BOX_TIEMPO)
 from test.lusax2.Parada as p	join test.LUSAX2.Automovil as a on a.AUTO_ID = p.AUTO_ID
 								JOIN test.LUSAX2.TELEMETRIA_AUTO AS TA   ON A.AUTO_ID = TA.AUTO_ID
 								JOIN test.LUSAX2.TELEMETRIA AS TE ON TA.TELE_AUTO_ID = TE.TELE_AUTO_ID
@@ -300,6 +302,7 @@ from test.lusax2.Parada as p	join test.LUSAX2.Automovil as a on a.AUTO_ID = p.AU
 																								end)
 where NEUMATICO_TIPO is not null
 group by A.ESCUDERIA_NOMBRE,	a.auto_id, ca.Circuito_Codigo, a.piloto_id,e.ESCUDERIA_NOMBRE, NEUMATICO_TIPO, bt.tiempo_id
+
 -- Falta dividir
 /*
 insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id, circuito_codigo, piloto_id, sector_tipo, tiempo_id, promedio_incidentes)
@@ -336,5 +339,4 @@ from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARR
 																									ELSE 1
 																								end)
 group by a.auto_id, a.PILOTO_ID, a.ESCUDERIA_NOMBRE, ci.Circuito_Codigo, s.SECTOR_TIPO, bt.tiempo_id 
-
 */
