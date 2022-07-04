@@ -174,9 +174,6 @@ alter table lusax2.BI_Incidente
 ADD CONSTRAINT FKI_ESCUDERIA_NOMBRE
 FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
 
-
-/*
-
 insert into bi.[LUSAX2].[BI_Automovil] ([AUTO_ID],[AUTO_NUMERO],[AUTO_MODELO])
 select distinct [AUTO_ID], [AUTO_NUMERO], [AUTO_MODELO]
 from test.[LUSAX2].[Automovil]
@@ -214,6 +211,9 @@ from test.[LUSAX2].[Carrera]
 insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO)
 select INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO
 from test.[LUSAX2].[Incidente]
+
+/*
+
 
 insert into lusax2.BI_tablaDeHechos (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, neumatico_tipo, consumo_combustible_promedio,velocidad_Maxima,tiempo_Promedio_Boxes)
 select a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID], n.[NEUMATICO_TIPO],avg(tele_auto_combustible), max([TELE_AUTO_VELOCIDAD]),avg(PA.parada_box_tiempo)
