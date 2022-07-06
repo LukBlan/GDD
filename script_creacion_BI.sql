@@ -4,8 +4,7 @@ go
 CREATE SCHEMA [LUSAX2]
 GO
 
-create table lusax2.BI_Carrera (
-	fact_Carrera_Vuelta_id int identity(1,1),
+create table lusax2.BI_Mediciones (
 	circuito_codigo int,
 	piloto_id int,
 	tiempo_id int,
@@ -16,27 +15,24 @@ create table lusax2.BI_Carrera (
 	Desgaste_Neumatico decimal(18,6),
 	Desgaste_freno decimal(18,2),
 	desgaste_motor decimal(18,6),
-	numero_vuelta decimal(18,0),
 	consumo_Combustible_promedio decimal(18,2),
 	velocidad_Maxima decimal(18,2),
 	tiempo_Vuelta decimal(18,10),
-	CONSTRAINT PK_fact_Carrera_Vuelta_id PRIMARY KEY (fact_Carrera_Vuelta_id)
+	CONSTRAINT PK_fact_Mediciones PRIMARY KEY (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, sector_tipo, auto_id)
 ); 
 
 create table lusax2.BI_Incidente (
-	fact_incidente_id int identity(1,1),
-	incidente_id int,
+	INCIDENTE_TIPO nvarchar(255),
 	circuito_codigo int,
 	piloto_id int,
 	tiempo_id int,
 	escuderia_nombre nvarchar(255),
 	auto_id int,
 	cantidad_Incidentes int,
-	CONSTRAINT PK_fact_incidente_id PRIMARY KEY (fact_incidente_id),
+	CONSTRAINT PK_fact_INCIDENTE PRIMARY KEY (INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre,	auto_id),
 ); 
 
 create table lusax2.BI_Parada (
-	fact_Parada_id int identity(1,1),
 	circuito_codigo int,
 	piloto_id int,
 	tiempo_id int,
@@ -45,7 +41,7 @@ create table lusax2.BI_Parada (
 	auto_id int,
 	tiempo_Promedio_Boxes decimal(18,2),
 	cantidad_Paradas int,
-	CONSTRAINT PK_fact_Parada_id PRIMARY KEY (fact_Parada_id),
+	CONSTRAINT PK_fact_Parada PRIMARY KEY (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, neumatico_tipo, auto_id),
 ); 
 
 CREATE TABLE lusax2.BI_Automovil (
@@ -95,11 +91,8 @@ create table lusax2.BI_tipoSector (
 );
 
 create table lusax2.BI_tipo_incidente (
-	INCIDENTE_ID  int  NOT NULL,
 	INCIDENTE_TIPO nvarchar(255),
-    INCIDENTE_BANDERA nvarchar(255),
-    INCIDENTE_TIEMPO decimal(18,2),
-	CONSTRAINT PK_INCIDENTE_ID PRIMARY KEY (INCIDENTE_ID),
+	CONSTRAINT PK_INCIDENTE_TIPO PRIMARY KEY (INCIDENTE_TIPO),
 )
 
 alter table lusax2.BI_Parada
@@ -126,27 +119,27 @@ alter table lusax2.BI_Parada
 ADD CONSTRAINT FKP_ESCUDERIA_NOMBRE
 FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FKC_auto_id
 FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FKC_piloto_id
 FOREIGN KEY (piloto_id) REFERENCES lusax2.BI_Piloto(piloto_id);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FKC_circuito_codigo
 FOREIGN KEY (circuito_codigo) REFERENCES lusax2.BI_Circuito(circuito_codigo);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FKC_tiempo_id
 FOREIGN KEY (tiempo_id) REFERENCES lusax2.BI_Tiempo(tiempo_id);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FKC_ESCUDERIA_NOMBRE
 FOREIGN KEY (ESCUDERIA_NOMBRE) REFERENCES lusax2.BI_Escuderia(ESCUDERIA_NOMBRE);
 
-alter table lusax2.BI_Carrera
+alter table lusax2.BI_Mediciones
 ADD CONSTRAINT FK_sector_tipo
 FOREIGN KEY (sector_tipo) REFERENCES lusax2.BI_tipoSector(sector_tipo);
 
@@ -155,8 +148,8 @@ ADD CONSTRAINT FKI_auto_id
 FOREIGN KEY (auto_id) REFERENCES lusax2.BI_Automovil(auto_id);
 
 alter table lusax2.BI_Incidente
-ADD CONSTRAINT FK_incidente_id
-FOREIGN KEY (incidente_id) REFERENCES lusax2.BI_tipo_incidente(incidente_id);
+ADD CONSTRAINT FK_incidente_tipo
+FOREIGN KEY (INCIDENTE_TIPO) REFERENCES lusax2.BI_tipo_incidente(INCIDENTE_TIPO);
 
 alter table lusax2.BI_Incidente
 ADD CONSTRAINT FKI_piloto_id
@@ -208,17 +201,37 @@ select distinct year([CARRERA_FECHA]), CASE
 									   end AS "Cuatrimestre"
 from test.[LUSAX2].[Carrera]
 
-insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO)
-select INCIDENTE_ID, INCIDENTE_TIPO, INCIDENTE_BANDERA, INCIDENTE_TIEMPO
+insert into bi.lusax2.BI_tipo_incidente (INCIDENTE_TIPO)
+select distinct INCIDENTE_TIPO
 from test.[LUSAX2].[Incidente]
+group by INCIDENTE_TIPO
 
-insert into lusax2.BI_Carrera (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id,numero_vuelta, consumo_combustible_promedio, velocidad_Maxima)
-select a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID],ta.[TELE_AUTO_NRO_VUELTA],avg(tele_auto_combustible), max([TELE_AUTO_VELOCIDAD])
+create table lusax2.temp (
+	circuito_codigo int,
+	piloto_id int,
+	tiempo_id int,
+	escuderia_nombre nvarchar(255),
+	sector_tipo nvarchar(255),
+	auto_id int,
+	Desgaste_Caja decimal(18,2),
+	Desgaste_Neumatico decimal(18,6),
+	Desgaste_freno decimal(18,2),
+	desgaste_motor decimal(18,6),
+	consumo_Combustible_promedio decimal(18,2),
+	velocidad_Maxima decimal(18,2),
+	tiempo_Vuelta decimal(18,10),
+	numero_vuelta decimal(18,0),
+)
+
+insert into bi.lusax2.temp (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, numero_vuelta, consumo_combustible_promedio, velocidad_Maxima, desgaste_motor, Desgaste_Caja,Desgaste_Neumatico,Desgaste_freno, tiempo_Vuelta)
+select a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID], ta.[TELE_AUTO_NRO_VUELTA], avg(ta.tele_auto_combustible), max(ta.[TELE_AUTO_VELOCIDAD]),(max(TM.tele_motor_potencia)-min(TM.tele_motor_potencia)), min(TC.tele_caja_desgaste),((max(tele_neumatico1_profundidad)-min(tele_neumatico1_profundidad)+max(tele_neumatico2_profundidad)-min(tele_neumatico2_profundidad)+ max (tele_neumatico3_profundidad)-min(tele_neumatico3_profundidad)+max(tele_neumatico4_profundidad)-min(tele_neumatico4_profundidad))/4),((max(tele_freno1_grosor_pastilla)-min(tele_freno1_grosor_pastilla)+max(tele_freno2_grosor_pastilla)-min(tele_freno2_grosor_pastilla)+max(tele_freno3_grosor_pastilla)-min(tele_freno3_grosor_pastilla)+max(tele_freno4_grosor_pastilla)- min(tele_freno4_grosor_pastilla))/4), max(ta.[TELE_AUTO_TIEMPO_VUELTA])
 from test.lusax2.automovil as a	join test.lusax2.telemetria_auto as ta on a.auto_id = ta.auto_id
 							join test.lusax2.telemetria as t on t.tele_auto_id = ta.tele_auto_id 
 							join test.lusax2.sector as s on s.sector_codigo = t.sector_codigo
 							join test.lusax2.carrera as c on c.[CARRERA_CODIGO] = t.[CARRERA_CODIGO]
-							join test.LUSAX2.Parada as PA on c.CARRERA_CODIGO = PA.CARRERA_CODIGO
+							join test.lusax2.Telemetria_Motor as TM on T.TELE_MOTOR_ID = TM.TELE_MOTOR_ID
+							join test.lusax2.Telemetria_CajaDeCambio as TC on T.TELE_CAJA_CAMBIO_ID = TC.TELE_CAJA_CAMBIO_ID
+							join GD1C2022.gd_esquema.Maestra as EM on em.TELE_AUTO_CODIGO = T.TELE_AUTO_ID
 							join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (	select tiempo_id
 																				from bi.lusax2.BI_Tiempo as bi1
 																				where bi1.anio = year(c.carrera_fecha) and
@@ -227,62 +240,14 @@ from test.lusax2.automovil as a	join test.lusax2.telemetria_auto as ta on a.auto
 																									WHEN MONTH(c.carrera_fecha) > 4	THEN 2
 																									ELSE 1
 																									end)
-group by a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID],ta.[TELE_AUTO_NRO_VUELTA]
+group by a.auto_id, s.sector_tipo, s.circuito_codigo, a.[ESCUDERIA_NOMBRE], bt.tiempo_id, a.[PILOTO_ID], ta.[TELE_AUTO_NRO_VUELTA]
 
-/*
-insert into lusax2.BI_Carrera(circuito_codigo,piloto_id,auto_id,Desgaste_Caja,desgaste_neumatico , Desgaste_freno,desgaste_motor,numero_vuelta)
-select CI.circuito_codigo,au.Auto_id,TC.tele_caja_desgaste,(max(tele_neumatico1_profundidad)-min(tele_neumatico1_profundidad)+(max(tele_neumatico2_profundidad)-min(tele_neumatico2_profundidad)+(max (tele_neumatico3_profundidad))-min(tele_neumatico3_profundidad)+max(tele_neumatico4_profundidad)-min(tele_neumatico4_profundidad)/4)),(max(tele_freno1_grosor_pastilla)-min(tele_freno1_grosor_pastilla)+max(tele_freno2_grosor_pastilla)-min(tele_freno2_grosor_pastilla)+max(tele_freno3_grosor_pastilla)-min(tele_freno3_grosor_pastilla)+max(tele_freno4_grosor_pastilla)-min(tele_freno4_grosor_pastilla)/4),(max(TM.tele_motor_potencia)-min(TM.tele_motor_potencia)),TA.TELE_AUTO_NRO_VUELTA
-from test.lusax2.Telemetria as TE join test.lusax2.Telemetria_Motor as TM on TE.TELE_MOTOR_ID = TM.TELE_MOTOR_ID
-join test.lusax2.Telemetria_CajaDeCambio as TC on TE.TELE_CAJA_CAMBIO_ID = TC.TELE_CAJA_CAMBIO_ID
-join test.lusax2.Carrera as CA on CA.CARRERA_CODIGO = TE.CARRERA_CODIGO
-join test.lusax2.Circuito as CI on CA.Circuito_Codigo = CI.CIRCUITO_CODIGO
-join test.lusax2.Telemetria_Auto as TA on TA.TELE_AUTO_ID = TE.TELE_AUTO_ID
-join test.lusax2.Automovil as AU on AU.AUTO_ID = TA.AUTO_ID
-join GD1C2022.gd_esquema.Maestra as EM on em.TELE_AUTO_CODIGO = TE.TELE_AUTO_ID and
-em.CIRCUITO_CODIGO = CI.CIRCUITO_CODIGO and
-EM.TELE_AUTO_NUMERO_VUELTA = TA.TELE_AUTO_NRO_VUELTA and
-em.CODIGO_CARRERA = CA.CARRERA_CODIGO
-group by AU.AUTO_ID,CI.Circuito_Codigo,TELE_AUTO_NRO_VUELTA,TC.TELE_CAJA_DESGASTE,em.TELE_NEUMATICO1_PROFUNDIDAD,em.TELE_NEUMATICO2_PROFUNDIDAD,em.TELE_NEUMATICO3_PROFUNDIDAD,em.TELE_NEUMATICO4_PROFUNDIDAD,em.TELE_FRENO1_GROSOR_PASTILLA,em.TELE_FRENO2_GROSOR_PASTILLA,em.TELE_FRENO3_GROSOR_PASTILLA,em.TELE_FRENO4_GROSOR_PASTILLA
-*/
-/*
-create table #temp (
-	ESCUDERIA_NOMBRE nvarchar (255),
-	auto_id int,
-	CIRCUITO_CODIGO int,
-	piloto_id int,
-	sector_tipo nvarchar(255),
-	TELE_AUTO_NRO_VUELTA int,
-	CARRERA_FECHA date,
-	neumatico_tipo nvarchar(255),
-	TELE_AUTO_TIEMPO_VUELTA decimal(18,10),
-)
+insert into bi.LUSAX2.BI_Mediciones (auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, consumo_combustible_promedio, velocidad_Maxima, desgaste_motor, Desgaste_Caja, Desgaste_Neumatico, Desgaste_freno, tiempo_Vuelta)
+select auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, avg(consumo_combustible_promedio), max(velocidad_Maxima), avg(desgaste_motor), avg(Desgaste_Caja),avg(Desgaste_Neumatico), avg(Desgaste_freno), min(tiempo_Vuelta)
+from bi.lusax2.temp
+group by auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id
 
-insert into #temp (auto_id, sector_tipo, CIRCUITO_CODIGO, ESCUDERIA_NOMBRE, piloto_id,  TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,neumatico_tipo, TELE_AUTO_TIEMPO_VUELTA)
-select a.auto_id, s.sector_tipo,s.CIRCUITO_CODIGO,a.ESCUDERIA_NOMBRE,a.piloto_id, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,n.neumatico_tipo, max(TELE_AUTO_TIEMPO_VUELTA)
-from test.LUSAX2.Automovil as a		join test.LUSAX2.Telemetria_Auto as ta on ta.AUTO_ID = a.AUTO_ID
-									join test.LUSAX2.Telemetria as t on t.TELE_AUTO_ID = ta.TELE_AUTO_ID
-									join test.LUSAX2.Sector as s on s.SECTOR_CODIGO = t.SECTOR_CODIGO
-									join test.LUSAX2.Carrera as c on c.Circuito_Codigo = s.CIRCUITO_CODIGO
-									join test.LUSAX2.neumatico as n on a.auto_id = n.auto_id 
-where ta.TELE_AUTO_TIEMPO_VUELTA != 0 and
-neumatico_tipo is not null
-group by a.ESCUDERIA_NOMBRE, s.CIRCUITO_CODIGO,a.piloto_id,s.sector_tipo, ta.TELE_AUTO_NRO_VUELTA, CARRERA_FECHA,a.auto_id,n.neumatico_tipo
-order by 1,2,3
-
-
-insert into lusax2.BI_tablaDeHechos (escuderia_nombre, auto_id,circuito_codigo,piloto_id, sector_tipo, tiempo_id,  neumatico_tipo, tiempo_Vuelta)
-select ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tiempo_id,neumatico_tipo , min(TELE_AUTO_TIEMPO_VUELTA)
-from bi.#temp join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
-																			from bi.lusax2.BI_Tiempo as bi1
-																			where bi1.anio = year(carrera_fecha) and
-																			bi1.cuatrimestre = CASE
-																									WHEN MONTH(carrera_fecha) > 8	THEN 3
-																									WHEN MONTH(carrera_fecha) > 4	THEN 2
-																									ELSE 1
-																								end)
-group by ESCUDERIA_NOMBRE, auto_id, CIRCUITO_CODIGO, piloto_id, sector_tipo, tiempo_id, neumatico_tipo
-drop table #temp
-*/
+delete lusax2.temp
 
 insert into lusax2.BI_Parada (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, neumatico_tipo, tiempo_promedio_boxes, cantidad_Paradas)
 select ca.Circuito_Codigo, a.piloto_id,bt.tiempo_id,e.escuderia_nombre, NEUMATICO_TIPO, count(distinct PARADA_CODIGO_BOX), AVG(PARADA_BOX_TIEMPO)

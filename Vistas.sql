@@ -8,25 +8,29 @@ go
 
 --Desgaste De cada componente por vuelta
 create view lusax2.desgaste_componentes as
-select auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
-from LUSAX2.BI_Componente
-group by auto_id,desgaste_caja,desgaste_neumatico,desgaste_freno,desgaste_motor,numero_vuelta,circuito_codigo
+select	auto_id, 
+		circuito_codigo,
+		avg(desgaste_caja) as 'DesgasteCaja', 
+		avg(desgaste_neumatico) as 'DesgasteNeumaticos', 
+		avg(desgaste_freno) as 'DesgasteFreno', 
+		avg(desgaste_motor) as 'DesgasteMotor'
+from LUSAX2.BI_Mediciones
+group by auto_id, circuito_codigo
 go
 
---Max Velocidad en cada sector por un auto
+--Max Velocidad en cada sector por un auto (No es correcta Migracion)
 CREATE view lusax2.Max_Velocidad_Auto_Sector as
-select auto_id, sector_tipo, circuito_codigo, max(velocidad_Maxima)
-from lusax2.BI_Carrera
-where velocidad_Maxima is not null
+select auto_id, sector_tipo, circuito_codigo, max(velocidad_Maxima) as 'VelocidadMaxima'
+from lusax2.BI_Mediciones
 group by auto_id, sector_tipo, circuito_codigo
 go
 
---Mayor consumo de combustible (Puede ser que no sea correcto)
+--Mayor consumo de combustible (Cabiar Calculo de Combustible)
 CREATE view lusax2.circuito_mas_gasto_combustibles as
-select top 3 circuito_codigo,consumo_Combustible_promedio
-from LUSAX2.BI_Carrera
-group by circuito_codigo,consumo_Combustible_promedio
-order by consumo_Combustible_promedio desc
+select top 3 circuito_codigo, sum(consumo_Combustible_promedio) as 'ConsumoCombustiblePromedio'
+from LUSAX2.BI_Mediciones
+group by circuito_codigo
+order by 2 desc
 go
 
 --Tiempo promedio de parada en cada cuatrimestre
@@ -37,11 +41,11 @@ where tiempo_Promedio_Boxes is not null
 group by ESCUDERIA_NOMBRE, bt.cuatrimestre
 go
 
---Max Velocidad en cada sector por un auto
+--Vuelta Mas Rapida x Escuderia x Circuito x Anio
 CREATE view lusax2.VueltaMasRapida as
 select [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio,  min(tiempo_Vuelta) as tiempoVueltaMasRapida
-from lusax2.BI_tablaDeHechos as tdh	join [LUSAX2].[BI_Tiempo] as dt on tdh.tiempo_id = dt.tiempo_id
-where tiempo_Vuelta is not null
+from LUSAX2.BI_Mediciones as tdh	join [LUSAX2].[BI_Tiempo] as dt on tdh.tiempo_id = dt.tiempo_id
+where tiempo_Vuelta != 0
 group by [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio
 go
 
