@@ -1,9 +1,9 @@
 --Top 3 de circuitos donde hay mayor cantidad de tiempo en boxes
 create view lusax2.Circuitos_Mayor_tiempo_boxes as
-select top 3 circuito_codigo,tiempo_Promedio_Boxes
-from LUSAX2.BI_tablaDeHechos
-group by circuito_codigo,tiempo_Promedio_Boxes
-order by tiempo_Promedio_Boxes desc
+select top 3 circuito_codigo, sum(tiempo_Promedio_Boxes)
+from bi.LUSAX2.BI_parada
+group by circuito_codigo
+order by 2 desc
 go
 
 --Desgaste De cada componente por vuelta
@@ -18,14 +18,14 @@ from LUSAX2.BI_Mediciones
 group by auto_id, circuito_codigo
 go
 
---Max Velocidad en cada sector por un auto (No es correcta Migracion)
+--Max Velocidad en cada sector por un auto 
 CREATE view lusax2.Max_Velocidad_Auto_Sector as
 select auto_id, sector_tipo, circuito_codigo, max(velocidad_Maxima) as 'VelocidadMaxima'
 from lusax2.BI_Mediciones
 group by auto_id, sector_tipo, circuito_codigo
 go
 
---Mayor consumo de combustible (Cabiar Calculo de Combustible)
+--Mayor consumo de combustible
 CREATE view lusax2.circuito_mas_gasto_combustibles as
 select top 3 circuito_codigo, sum(consumo_Combustible_promedio) as 'ConsumoCombustiblePromedio'
 from LUSAX2.BI_Mediciones
@@ -36,12 +36,11 @@ go
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view lusax2.Tiempo_Promedio_Parada_Cuatrimestre as
 SELECT ESCUDERIA_NOMBRE, bt.cuatrimestre, AVG(tiempo_Promedio_Boxes) as promedioParada
-FROM bi.LUSAX2.BI_tablaDeHechos as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
-where tiempo_Promedio_Boxes is not null
+FROM bi.LUSAX2.bi_parada as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
 group by ESCUDERIA_NOMBRE, bt.cuatrimestre
 go
 
---Vuelta Mas Rapida x Escuderia x Circuito x Anio
+--Vuelta Mas Rapida [x Escuderia x Circuito x Anio]
 CREATE view lusax2.VueltaMasRapida as
 select [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio,  min(tiempo_Vuelta) as tiempoVueltaMasRapida
 from LUSAX2.BI_Mediciones as tdh	join [LUSAX2].[BI_Tiempo] as dt on tdh.tiempo_id = dt.tiempo_id
@@ -52,9 +51,8 @@ go
 -- Cantidad de Paradas x Circuito x Escuderia x Anio
 CREATE view lusax2.CantidadDeParadas as
 select escuderia_nombre,circuito_codigo, bt.anio, sum(distinct cantidad_Paradas) as cantidadDeParadas
-from bi.LUSAX2.BI_tablaDeHechos as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
-where cantidad_Paradas is not null
-group by circuito_codigo, escuderia_nombre,bt.anio
+from bi.LUSAX2.bi_parada as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
+group by circuito_codigo, escuderia_nombre, bt.anio
 go
 
 CREATE view lusax2.promedioIncidentes as
