@@ -249,14 +249,13 @@ group by auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, pil
 
 delete lusax2.temp
 
-insert into lusax2.BI_Parada (auto_id, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, neumatico_tipo, tiempo_promedio_boxes, cantidad_Paradas)
-select a.auto_id, ca.Circuito_Codigo, a.piloto_id,bt.tiempo_id, a.escuderia_nombre, NEUMATICO_TIPO, count(distinct p.[PARADA_CODIGO_BOX]), AVG(p.PARADA_BOX_TIEMPO)
-from test.lusax2.neumatico n	join test.lusax2.telemetria_neumatico  tn on 	n.neumatico_nro_serie = tn.neumatico_nro_serie
-								join test.lusax2.telemetria t on t.telemetria_id = tn.telemetria_id
-								JOIN test.LUSAX2.CARRERA AS CA ON T.CARRERA_CODIGO = CA.CARRERA_CODIGO
-								JOIN test.LUSAX2.TELEMETRIA_AUTO AS TA   ON t.tele_auto_id = ta.tele_auto_id
-								join test.LUSAX2.Automovil as a on a.AUTO_ID = ta.AUTO_ID
-								join test.lusax2.Parada as p on p.carrera_codigo + p.auto_id = t.carrera_codigo + a.auto_id
+insert into lusax2.BI_Parada (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre,auto_id, tiempo_promedio_boxes, cantidad_Paradas)
+select ca.Circuito_Codigo, a.piloto_id,bt.tiempo_id,e.escuderia_nombre,a.auto_id, count(distinct PARADA_CODIGO_BOX), AVG( PARADA_BOX_TIEMPO)
+from test.lusax2.Parada as p	join test.LUSAX2.Automovil as a on a.AUTO_ID = p.AUTO_ID
+								JOIN test.LUSAX2.TELEMETRIA_AUTO AS TA   ON A.AUTO_ID = TA.AUTO_ID
+								JOIN test.LUSAX2.TELEMETRIA AS TE ON TA.TELE_AUTO_ID = TE.TELE_AUTO_ID
+								join test.LUSAX2.Escuderia as e on A.ESCUDERIA_NOMBRE= e.ESCUDERIA_NOMBRE
+								JOIN test.LUSAX2.CARRERA AS CA ON TE.CARRERA_CODIGO = CA.CARRERA_CODIGO
 								join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = (select tiempo_id
 																			from bi.lusax2.BI_Tiempo as bi1
 																			where bi1.anio = year(carrera_fecha) and
@@ -265,7 +264,8 @@ from test.lusax2.neumatico n	join test.lusax2.telemetria_neumatico  tn on 	n.neu
 																									WHEN MONTH(carrera_fecha) > 4	THEN 2
 																									ELSE 1
 																								end)
-group by A.ESCUDERIA_NOMBRE, a.auto_id, ca.Circuito_Codigo, a.piloto_id, NEUMATICO_TIPO, bt.tiempo_id
+group by A.ESCUDERIA_NOMBRE,a.auto_id, ca.Circuito_Codigo, a.piloto_id,e.ESCUDERIA_NOMBRE, bt.tiempo_id
+
 
 
 -- Falta dividir
