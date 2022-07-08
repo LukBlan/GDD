@@ -69,13 +69,13 @@ create procedure top3CircuitosPeligrosos
 as
 begin
 	declare @anio int
-	declare topCircuitos cursor for select year(Carrera_fecha) from test.LUSAX2.Carrera
+	declare topCircuitos cursor for select anio from bi.LUSAX2.BI_Tiempo
 	open topCircuitos
-	fetch nect FROM topCircuitos
+	fetch next FROM topCircuitos
 	into @anio
 	while @@FETCH_STATUS = 0
 	begin
-	select top 3 bi.circuito_codigo from BI.lusax2.bi_incidente as bi  join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = bi.tiempo_id where bt.anio = @anio group by bi.circuito_codigo,bi.cantidad_incidentes order by bi.cantidad_incidentes
+	select top 3 bi.circuito_codigo,bt.anio from BI.lusax2.bi_incidente as bi  join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = bi.tiempo_id where bt.anio = @anio group by bi.circuito_codigo,bi.cantidad_incidentes,bt.anio order by sum(bi.cantidad_incidentes)
 	fetch next FROM topCircuitos 
 	into @anio
 	end
