@@ -1,3 +1,4 @@
+
 --Top 3 de circuitos donde hay mayor cantidad de tiempo en boxes
 create view lusax2.Circuitos_Mayor_tiempo_boxes as
 select top 3 circuito_codigo, sum(tiempo_Promedio_Boxes)
@@ -62,9 +63,22 @@ where [promedio_incidentes] is not null
 group by escuderia_nombre,sector_tipo
 go
 
-CREATE view Circuitos_mas_peligrosos as
-select circuito_codigo, anio, sum(distinct cantidad_incidentes) as cantidadIncidentes
-from bi.LUSAX2.BI_tablaDeHechos as tdh join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id 
-where cantidad_Incidentes is not null
-group by circuito_codigo, anio
-go
+--Circuitos mas peligrosos
+
+create procedure top3CircuitosPeligrosos
+as
+begin
+	declare @anio int
+	declare topCircuitos cursor for select year(Carrera_fecha) from test.LUSAX2.Carrera
+	open topCircuitos
+	fetch nect FROM topCircuitos
+	into @anio
+	while @@FETCH_STATUS = 0
+	begin
+	select top 3 bi.circuito_codigo from BI.lusax2.bi_incidente as bi  join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = bi.tiempo_id where bt.anio = @anio group by bi.circuito_codigo,bi.cantidad_incidentes order by bi.cantidad_incidentes
+	fetch next FROM topCircuitos 
+	into @anio
+	end
+	CLOSE topCircuitos
+DEALLOCATE  topCircuitos
+end
