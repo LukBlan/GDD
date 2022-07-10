@@ -30,6 +30,7 @@ create table lusax2.BI_Incidente (
 	escuderia_nombre nvarchar(255),
 	auto_id int,
 	cantidad_Incidentes int,
+	promedio_incidentes decimal(18,2),
 	CONSTRAINT PK_fact_INCIDENTE PRIMARY KEY (INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre,	auto_id),
 ); 
 
@@ -291,8 +292,8 @@ group by A.ESCUDERIA_NOMBRE, a.auto_id, c.Circuito_Codigo, a.piloto_id, s.SECTOR
 */
 
 
-insert into lusax2.BI_Incidente(INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, auto_id, cantidad_Incidentes)
-select i.INCIDENTE_TIPO, ci.Circuito_Codigo, a.PILOTO_ID, tiempo_id, a.ESCUDERIA_NOMBRE, a.AUTO_ID , count(distinct i.INCIDENTE_ID)
+insert into lusax2.BI_Incidente(INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, auto_id, cantidad_Incidentes, promedio_incidentes)
+select i.INCIDENTE_TIPO, ci.Circuito_Codigo, a.PILOTO_ID, tiempo_id, a.ESCUDERIA_NOMBRE, a.AUTO_ID , count(distinct i.INCIDENTE_ID), count(distinct i.INCIDENTE_ID)/cast((select count(distinct year(carrera_fecha)) from test.lusax2.carrera) as float)
 from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARRERA_CODIGO = ca.CARRERA_CODIGO
 									join test.LUSAX2.Circuito as ci on ci.CIRCUITO_CODIGO = ca.Circuito_Codigo
 									join test.[LUSAX2].[AutoxIncidente] as ai on i.INCIDENTE_ID = ai.INCIDENTE_ID
