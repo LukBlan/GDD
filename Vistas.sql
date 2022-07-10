@@ -49,22 +49,34 @@ where tiempo_Vuelta != 0
 group by [ESCUDERIA_NOMBRE], circuito_codigo, dt.anio
 go
 
--- Cantidad de Paradas x Circuito x Escuderia x Anio
+-- Cantidad de Paradas [x Circuito x Escuderia x Anio]
 CREATE view lusax2.CantidadDeParadas as
 select escuderia_nombre,circuito_codigo, bt.anio, sum(distinct cantidad_Paradas) as cantidadDeParadas
-from bi.LUSAX2.bi_parada as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
+from bi.LUSAX2.bi_parada as tdh		join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
 group by circuito_codigo, escuderia_nombre, bt.anio
 go
 
+-- Promedio de Incidetes [x Escuderia x Sector_Tipo]
 CREATE view lusax2.promedioIncidentes as
 select escuderia_nombre ,sector_tipo, sum([promedio_incidentes]) as promedioIncidentesPorAnio
-from bi.LUSAX2.BI_tablaDeHechos as tdh join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
-where [promedio_incidentes] is not null
+from bi.LUSAX2.BI_Incidente as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
 group by escuderia_nombre,sector_tipo
 go
 
 --Circuitos mas peligrosos
+create view lusax2.top3CircuitoMasPeligrosos as with circuitoPeligrosos as
+(select bi.circuito_codigo,
+		bt.anio,
+		sum(bi.cantidad_incidentes) as 'CantidadIncidentes',
+		row_number() over (partition by bt.anio order by bt.anio) as cantidadDeFilas
+from bi.lusax2.bi_incidente as bi	join bi.lusax2.bi_tiempo as bt on bt.tiempo_id = bi.tiempo_Id
+group by bi.circuito_codigo, bi.cantidad_Incidentes, bt.anio)
+select circuito_codigo, cantidadIncidentes, anio
+from circuitoPeligrosos
+where cantidadDeFilas < 4
+go
 
+/*
 create procedure top3CircuitosPeligrosos
 as
 begin
@@ -82,3 +94,4 @@ begin
 	CLOSE topCircuitos
 DEALLOCATE  topCircuitos
 end
+*/
