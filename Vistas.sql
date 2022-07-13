@@ -28,7 +28,7 @@ go
 
 --Mayor consumo de combustible
 CREATE view lusax2.circuito_mas_gasto_combustibles as
-select circuito_codigo, sum(consumo_Combustible_promedio)/4 /COUNT(distinct auto_id) as 'ConsumoCombustiblePromedio'
+select circuito_codigo, avg(consumo_Combustible_promedio) * max(numero_vuelta) as 'ConsumoCombustiblePromedio'
 from LUSAX2.BI_Mediciones
 group by circuito_codigo
 order by 2 desc
