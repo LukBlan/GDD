@@ -17,7 +17,7 @@ create table lusax2.BI_Mediciones (
 	Desgaste_Neumatico decimal(18,6),
 	Desgaste_freno decimal(18,2),
 	desgaste_motor decimal(18,6),
-	consumo_Combustible_promedio decimal(18,2),
+	consumo_Combustible decimal(18,2),
 	velocidad_Maxima decimal(18,2),
 	tiempo_Vuelta decimal(18,10),
 	CONSTRAINT PK_fact_Mediciones PRIMARY KEY (circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, sector_tipo, auto_id,neumatico_tipo, numero_vuelta)
@@ -40,7 +40,7 @@ create table lusax2.BI_Parada (
 	circuito_codigo int,
 	tiempo_id int,
 	escuderia_nombre nvarchar(255),
-	tiempo_Promedio_Boxes decimal(18,2),
+	tiempo_en_Boxes decimal(18,2),
 	cantidad_Paradas int,
 	CONSTRAINT PK_fact_Parada PRIMARY KEY (circuito_codigo, tiempo_id, escuderia_nombre),
 ); 
@@ -233,12 +233,12 @@ create table lusax2.tempNeumatico (
 	Desgaste_Neumatico decimal(18,6),
 	Desgaste_freno decimal(18,2),
 	desgaste_motor decimal(18,6),
-	consumo_Combustible_promedio decimal(18,2),
+	consumo_Combustible decimal(18,2),
 	velocidad_Maxima decimal(18,2),
 	tiempo_Vuelta decimal(18,10),
 )
 
-insert into LUSAX2.tempNeumatico (NEUMATICO_NRO_SERIE, FRENO_NRO_SERIE, sector_tipo, neumatico_tipo, auto_id, circuito_codigo, escuderia_nombre, piloto_id, numero_vuelta,tiempo_id,consumo_Combustible_promedio, velocidad_Maxima, desgaste_motor,Desgaste_Caja,Desgaste_Neumatico, Desgaste_freno, tiempo_Vuelta)
+insert into LUSAX2.tempNeumatico (NEUMATICO_NRO_SERIE, FRENO_NRO_SERIE, sector_tipo, neumatico_tipo, auto_id, circuito_codigo, escuderia_nombre, piloto_id, numero_vuelta,tiempo_id,consumo_Combustible, velocidad_Maxima, desgaste_motor,Desgaste_Caja,Desgaste_Neumatico, Desgaste_freno, tiempo_Vuelta)
 select n.NEUMATICO_NRO_SERIE, 
 		tf.FRENO_NRO_SERIE,
 		SECTOR_TIPO, 
@@ -276,8 +276,8 @@ from test.lusax2.neumatico	n	join test.[LUSAX2].[Telemetria_Neumatico] tn on n.N
 group by n.NEUMATICO_NRO_SERIE, tf.FRENO_NRO_SERIE,NEUMATICO_TIPO, a.AUTO_ID, SECTOR_TIPO, s.CIRCUITO_CODIGO , a.ESCUDERIA_NOMBRE, PILOTO_ID,TELE_AUTO_NRO_VUELTA,tiempo_id
 
 
-insert into bi.lusax2.bi_mediciones (neumatico_tipo, auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, numero_vuelta, consumo_combustible_promedio, velocidad_Maxima, desgaste_motor, Desgaste_Caja, Desgaste_Neumatico, Desgaste_freno, tiempo_Vuelta)
-select distinct neumatico_tipo, auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id,piloto_id , numero_vuelta,  max(consumo_Combustible_promedio), max(velocidad_Maxima), max(desgaste_motor), max(Desgaste_Caja), avg(Desgaste_Neumatico), avg(Desgaste_freno), min(tiempo_Vuelta)
+insert into bi.lusax2.bi_mediciones (neumatico_tipo, auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, numero_vuelta, consumo_Combustible, velocidad_Maxima, desgaste_motor, Desgaste_Caja, Desgaste_Neumatico, Desgaste_freno, tiempo_Vuelta)
+select distinct neumatico_tipo, auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id,piloto_id , numero_vuelta,  max(consumo_Combustible), max(velocidad_Maxima), max(desgaste_motor), max(Desgaste_Caja), avg(Desgaste_Neumatico), avg(Desgaste_freno), min(tiempo_Vuelta)
 from LUSAX2.tempNeumatico
 group by neumatico_tipo, auto_id, sector_tipo, circuito_codigo, escuderia_nombre, tiempo_id, piloto_id, numero_vuelta
 order by auto_id, sector_tipo, circuito_codigo, [ESCUDERIA_NOMBRE], tiempo_id, [PILOTO_ID], numero_vuelta
@@ -285,7 +285,7 @@ order by auto_id, sector_tipo, circuito_codigo, [ESCUDERIA_NOMBRE], tiempo_id, [
 drop table LUSAX2.tempNeumatico
 
 -- Insert en tabla de hechos paradas
-insert into lusax2.BI_Parada (circuito_codigo, tiempo_id, escuderia_nombre, cantidad_Paradas, tiempo_promedio_boxes)
+insert into lusax2.BI_Parada (circuito_codigo, tiempo_id, escuderia_nombre, cantidad_Paradas, tiempo_en_Boxes)
 select ca.circuito_codigo, bt.tiempo_id, a.[ESCUDERIA_NOMBRE], count(distinct PARADA_CODIGO_BOX), sum(PARADA_BOX_TIEMPO)
 from test.lusax2.circuito ci	join test.lusax2.carrera ca on ca.circuito_codigo = ci.circuito_codigo
 								join test.lusax2.parada p on P.carrera_codigo = CA.carrera_codigo
@@ -300,7 +300,7 @@ from test.lusax2.circuito ci	join test.lusax2.carrera ca on ca.circuito_codigo =
 																														end)
 group by ca.circuito_codigo, a.[ESCUDERIA_NOMBRE],bt.tiempo_id
 
-insert into lusax2.BI_Incidente(INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, auto_id,sector_tipo, cantidad_Incidentes, promedio_incidentes)
+insert into lusax2.BI_Incidente (INCIDENTE_TIPO, circuito_codigo, piloto_id, tiempo_id, escuderia_nombre, auto_id,sector_tipo, cantidad_Incidentes, promedio_incidentes)
 select i.INCIDENTE_TIPO, ci.Circuito_Codigo, a.PILOTO_ID, tiempo_id, a.ESCUDERIA_NOMBRE, a.AUTO_ID, s.sector_tipo , count(distinct i.INCIDENTE_ID), count(distinct i.INCIDENTE_ID)/cast((select count(distinct year(carrera_fecha)) from test.lusax2.carrera) as float)
 from test.[LUSAX2].[Incidente] as i join test.[LUSAX2].[carrera] as ca on i.CARRERA_CODIGO = ca.CARRERA_CODIGO
 									join test.LUSAX2.Circuito as ci on ci.CIRCUITO_CODIGO = ca.Circuito_Codigo

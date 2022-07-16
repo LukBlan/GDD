@@ -1,6 +1,6 @@
 --Top 3 de circuitos donde hay mayor cantidad de tiempo en boxes
 create view lusax2.Circuitos_Mayor_tiempo_boxes as
-select top 3 circuito_codigo, sum(tiempo_Promedio_Boxes)
+select top 3 circuito_codigo, sum(tiempo_en_Boxes) as 'TiempoEnBoxes'
 from bi.LUSAX2.BI_parada
 group by circuito_codigo
 order by 2 desc
@@ -27,8 +27,8 @@ group by auto_id, sector_tipo, circuito_codigo
 go
 
 --Mayor consumo de combustible
-CREATE view lusax2.circuito_mas_gasto_combustibles as
-select circuito_codigo, avg(consumo_Combustible_promedio) * max(numero_vuelta) as 'ConsumoCombustiblePromedio'
+create view lusax2.circuito_mas_gasto_combustibles as
+select top 3 circuito_codigo, sum(consumo_Combustible) / COUNT(distinct auto_id) as 'ConsumoCombustiblePromedio'
 from LUSAX2.BI_Mediciones
 group by circuito_codigo
 order by 2 desc
@@ -36,7 +36,7 @@ go
 
 --Tiempo promedio de parada en cada cuatrimestre
 CREATE view lusax2.Tiempo_Promedio_Parada_Cuatrimestre as
-SELECT ESCUDERIA_NOMBRE, bt.cuatrimestre, AVG(tiempo_Promedio_Boxes) as promedioParada
+SELECT ESCUDERIA_NOMBRE, bt.cuatrimestre, AVG(tiempo_en_Boxes) as promedioParada
 FROM bi.LUSAX2.bi_parada as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
 group by ESCUDERIA_NOMBRE, bt.cuatrimestre
 go
@@ -58,13 +58,13 @@ go
 
 -- Promedio de Incidetes [x Escuderia x Sector_Tipo] (Pendiente)
 CREATE view lusax2.promedioIncidentes as
-select escuderia_nombre ,sector_tipo, sum([promedio_incidentes]) as promedioIncidentesPorAnio
+select escuderia_nombre, sector_tipo, bt.anio, sum([promedio_incidentes]) as promedioIncidentesPorAnio
 from bi.LUSAX2.BI_Incidente as tdh	join bi.LUSAX2.BI_Tiempo as bt on tdh.tiempo_id = bt.tiempo_id
-group by escuderia_nombre,sector_tipo
+group by escuderia_nombre, sector_tipo, bt.anio
 go
 
 --Circuitos mas peligrosos
-alter view lusax2.top3CircuitoMasPeligrosos as with circuitoPeligrosos as
+create view lusax2.top3CircuitoMasPeligrosos as with circuitoPeligrosos as
 (select bi.circuito_codigo,
 		bt.anio,
 		sum(bi.cantidad_incidentes) as 'CantidadIncidentes',
@@ -75,27 +75,3 @@ select circuito_codigo, cantidadIncidentes, anio
 from circuitoPeligrosos
 where cantidadDeFilas < 4
 go
-
-/*
-create procedure top3CircuitosPeligrosos
-as
-begin
-	declare @anio int
-	declare topCircuitos cursor for select anio from bi.LUSAX2.BI_Tiempo
-	open topCircuitos
-	fetch next FROM topCircuitos
-	into @anio
-	while @@FETCH_STATUS = 0
-	begin
-	select bi.circuito_codigo,bt.anio, SUM(bi.cantidad_incidentes) 
-	from BI.lusax2.bi_incidente as bi  join bi.LUSAX2.BI_Tiempo as bt on bt.tiempo_id = bi.tiempo_id 
-	where bt.anio = 2020 
-	group by bi.circuito_codigo,bi.cantidad_incidentes,bt.anio 
-	order by sum(bi.cantidad_incidentes)
-	fetch next FROM topCircuitos 
-	into @anio
-	end
-	CLOSE topCircuitos
-DEALLOCATE  topCircuitos
-end
-*/
